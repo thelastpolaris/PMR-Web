@@ -1,4 +1,4 @@
-from tornado_sqlalchemy import SessionMixin
+from tornado_sqlalchemy import SessionMixin, as_future
 from .basehandler import BaseHandler
 import tornado.web
 import os
@@ -21,12 +21,12 @@ class DashboardHandler(SessionMixin, BaseHandler):
         user_id = self.get_secure_cookie("user_id")
 
         with self.make_session() as session:
-            user = session.query(User).filter(User.id == user_id).first()
-            files = session.query(File).filter(File.user_id == user_id).all()
+            user = await as_future(session.query(User).filter(User.id == user_id).first)
+            files = await as_future(session.query(File).filter(File.user_id == user_id).all)
 
-            processed_files = session.query(File).filter(File.user_id == user_id).filter(File.status == 2).count()
-            inprocess_files = session.query(File).filter(File.user_id == user_id).filter(File.status != 2).count()
-            processing_globally = session.query(File).filter(File.status != 2).count()
+            processed_files = await as_future(session.query(File).filter(File.user_id == user_id).filter(File.status == 2).count)
+            inprocess_files = await as_future(session.query(File).filter(File.user_id == user_id).filter(File.status != 2).count)
+            processing_globally = await as_future(session.query(File).filter(File.status != 2).count)
 
             args = {
                 "title": "Poor's Man Rekognition - Dashboard",
@@ -42,6 +42,48 @@ class DashboardHandler(SessionMixin, BaseHandler):
     def post(self):
         self.set_header("Content-Type", "text/plain")
         self.write("You wrote " + self.get_body_argument("message"))
+
+
+class UserPanelHandler(SessionMixin, BaseHandler):
+    @tornado.web.authenticated
+    async def get(self):
+        if len(self.get_arguments("logout")) > 0:
+            self.clear_all_cookies()
+            self.redirect("/")
+            return
+
+        user_id = self.get_secure_cookie("user_id")
+
+        with self.make_session() as session:
+            user = await as_future(session.query(User).filter(User.id == user_id).first)
+
+            args = {
+                "title": "Poor's Man Rekognition - Dashboard",
+                "user": user,
+                # "get_token": self.get_token,
+            }
+
+            self.render("user_panel.html", **args)
+
+    def check_xsrf_cookie(self):
+        pass
+
+    @tornado.web.authenticated
+    def post(self):
+        user_id = self.get_secure_cookie("user_id")
+        if self.get_body_argument("generate_token"):
+            with self.make_session() as session:
+                user = session.query(User).filter(User.id == user_id).first()
+
+                if user:
+                    user.generateToken()
+
+                    session.add(user)
+                    session.commit()
+
+                    self.write(user.api_token)
+                else:
+                    self.write("Wrong user")
 
 class TaskHandler(SessionMixin, BaseHandler):
     @tornado.web.authenticated
