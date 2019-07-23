@@ -2,7 +2,7 @@ import tornado.ioloop
 import tornado.web
 from views.auth import AuthCreateHandler, AuthLoginHandler, GoogleOAuth2LoginHandler, GithubLoginHandler
 from views.dashboard import DashboardHandler, UserPanelHandler, TaskHandler
-from api import APIHandler, APIAuthHandler
+from api import APIHandler
 from tornado_sqlalchemy import make_session_factory
 from tornado.web import StaticFileHandler
 import os
@@ -23,7 +23,6 @@ def make_app():
 		(r"/login_github", GithubLoginHandler),
 		(r"/addtask", TaskHandler),
 		(r"/api", APIHandler),
-		(r"/api/login", APIAuthHandler),
 		(r"/output/(.*)", StaticFileHandler, {'path':"output/"}),
 
 	]

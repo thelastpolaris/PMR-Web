@@ -66,118 +66,312 @@
     </div>
     <!-- Page content -->
     <div class="container-fluid mt--7">
+
+<!--      <div class="row mt-5">-->
+<!--        -->
+<!--        <div class="col-xl-4 col-lg-6 ">-->
+<!--          <div class="card shadow">-->
+<!--            <div class="card-header border-0">-->
+<!--              <div class="row align-items-center">-->
+<!--                <div class="col">-->
+<!--                  <h3 class="mb-0">Add new YouTube task</h3>-->
+<!--                    Provide the link to the video. Only 1 minute of the video with maximal resolution 480p will be processed.-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            <div class="card-body">-->
+<!--            <form enctype="multipart/form-data" action="/addtask" method="post">-->
+<!--              <div class="row">-->
+<!--                <div class="col">-->
+<!--                  <div class="form-group">-->
+<!--                    <input type="url" class="form-control" name="youtubevideo" placeholder="https://www.youtube.com/watch?v=Fzd-e1TUhCg">-->
+<!--                  </div>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--                  <div class="row">-->
+<!--                      <div class="col text-right">-->
+<!--                        <button class="btn btn-icon btn-3 btn-primary" type="submit" value="youtubefile">-->
+<!--                          <span class="btn-inner&#45;&#45;icon"><i class="ni ni-cloud-upload-96"></i></span>-->
+<!--                          <span class="btn-inner&#45;&#45;text">Submit</span>-->
+<!--                        </button>-->
+<!--                    </div>-->
+<!--                  </div>-->
+<!--            </form>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        <div class="col-xl-4 col-lg-6 ">-->
+<!--          <div class="card shadow">-->
+
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
       <div class="row mt-5">
         <div class="col">
           <div class="card shadow">
             <div class="card-header border-0">
               <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">Welcome to PMR's Beta!</h3>
-                  &emsp; On this webpage you can try person recognition in video and image files. The file processing is done asynchronously meaning that you can close the page and your video/image will still be processed (if no errors with the input will be encountered). Only 1 minute of the video due to limited hardware and possible multiple requests (anyway, it is a demo).
-                  <br/>
-                  &emsp; Once processing is done, you can download the JSON file containing information about all the face bounding boxes and recognized persons per each frame and video/image file with drawn bounding boxes and persons names.
-                  <br/>
-                  &emsp; List of all persons in the recognition dataset is <a href="http://vis-www.cs.umass.edu/lfw/justnames.html">here</a>
+                <div class="col-8">
+                <h3 class="mb-0">Latest Tasks</h3>
                 </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-      <div class="row mt-5">
-        <div class="col-xl-4 col-lg-6 ">
-          <div class="card shadow">
-            <div class="card-header border-0">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">Add new video task</h3>
-                  Only .mp4 files. Please, choose small-sized files due to the slow internet connection of the server. Only 1 minute of the video will be processed.
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-            <form enctype="multipart/form-data" action="/addtask" method="post">
-                  <div class="row">
-                    <div class="col">
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="customFileLang" name="videofile" accept="video/*">
-                    <label class="custom-file-label" for="customFileLang" >Select video</label>
-                  </div>
-                </div>
-                </div>
-                    <div class="row" style="margin-top: 1em;">
-                      <div class="col text-right">
-                        <button class="btn btn-icon btn-3 btn-primary" type="submit" value="upload">
-                          <span class="btn-inner--icon"><i class="ni ni-cloud-upload-96"></i></span>
-                          <span class="btn-inner--text">Upload</span>
-                        </button>
+                <div class="col-4 text-right">
+                  <button type="button" id="add-task" class="btn btn-warning" data-toggle="modal" data-target="#modal-default">
+                    <div>
+                      <i class="ni ni-fat-add"></i>
+                      <span>Add Task</span>
+                    </div>
+                  </button>
+                  <div class="modal fade" id="modal-default" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+                    <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title" id="modal-title-default">Add Task</h6>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            <div class="modal-body text-left">
+                              <div class="nav-wrapper">
+                                <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link mb-sm-3 mb-md-0 active" id="tabs-icons-text-1-tab" data-toggle="tab" href="#tabs-icons-text-1" role="tab" aria-controls="tabs-icons-text-1" aria-selected="true"><i class="ni ni-button-play mr-2"></i>Video</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link mb-sm-3 mb-md-0" id="tabs-icons-text-2-tab" data-toggle="tab" href="#tabs-icons-text-2" role="tab" aria-controls="tabs-icons-text-2" aria-selected="false"><i class="fa fa-image mr-2"></i>Images</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link mb-sm-3 mb-md-0" id="tabs-icons-text-3-tab" data-toggle="tab" href="#tabs-icons-text-3" role="tab" aria-controls="tabs-icons-text-3" aria-selected="false"><i class="fa fa-youtube mr-2"></i>YouTube</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <div class="tab-content" id="myTabContent">
+                                        <div class="tab-pane fade show active" id="tabs-icons-text-1" role="tabpanel" aria-labelledby="tabs-icons-text-1-tab">
+                                            <div class="row align-items-center">
+                                              <div class="col">
+                                                Only .mp4 files. Please, choose small-sized files due to the slow internet connection of the server. Only 1 minute of the video will be processed.
+                                              </div>
+                                            </div>
+                                          <form enctype="multipart/form-data" action="/addtask" method="post">
+                                                <div class="row">
+                                                  <div class="col">
+                                              <div class="custom-file">
+                                                  <input type="file" class="custom-file-input" id="customFileLang" name="videofile" accept="video/*">
+                                                  <label class="custom-file-label" for="customFileLang" >Select video</label>
+                                                </div>
+                                              </div>
+                                              </div>
+                                                  <div class="row" style="margin-top: 1em;">
+                                                    <div class="col text-right">
+                                                      <button class="btn btn-icon btn-3 btn-primary" type="submit" value="upload">
+                                                        <span class="btn-inner--icon"><i class="ni ni-cloud-upload-96"></i></span>
+                                                        <span class="btn-inner--text">Upload</span>
+                                                      </button>
+                                                  </div>
+                                                </div>
+                                          </form>
+                                        </div>
+                                        <div class="tab-pane fade" id="tabs-icons-text-2" role="tabpanel" aria-labelledby="tabs-icons-text-2-tab">
+                                              <div class="row align-items-center">
+                                                <div class="col">
+                                                  .png, .jpg and .jpeg formats are accepted. Only one image is allowed.
+                                                </div>
+                                              </div>
+                                            <form enctype="multipart/form-data" action="/addtask" method="post">
+                                              <div class="row">
+                                                <div class="col">
+                                                  <div class="custom-file">
+                                                      <input type="file" accept="image/*" class="custom-file-input" id="customFileLang" name="imagefile">
+                                                      <label class="custom-file-label" for="customFileLang" >Select image</label>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                <div class="row" style="margin-top: 1em;">
+                                                  <div class="col text-right">
+                                                    <button class="btn btn-icon btn-3 btn-primary" type="submit" value="upload">
+                                                      <span class="btn-inner--icon"><i class="ni ni-cloud-upload-96"></i></span>
+                                                      <span class="btn-inner--text">Upload</span>
+                                                    </button>
+                                                </div>
+                                              </div>
+                                            </form>
+                                        </div>
+                                        <div class="tab-pane fade" id="tabs-icons-text-3" role="tabpanel" aria-labelledby="tabs-icons-text-3-tab">
+                                          <div class="row align-items-center">
+                                                <div class="col">
+                                                    Provide the link to the video. Only 1 minute of the video with maximal resolution 480p will be processed.
+                                                </div>
+                                              </div>
+                                            <form enctype="multipart/form-data" action="/addtask" method="post">
+                                              <div class="row">
+                                                <div class="col">
+                                                  <div class="form-group">
+                                                    <input type="url" class="form-control" name="youtubevideo" placeholder="https://www.youtube.com/watch?v=Fzd-e1TUhCg">
+                                                  </div>
+                                                </div>
+                                              </div>
+                                                  <div class="row">
+                                                      <div class="col text-right">
+                                                        <button class="btn btn-icon btn-3 btn-primary" type="submit" value="youtubefile">
+                                                          <span class="btn-inner--icon"><i class="ni ni-cloud-upload-96"></i></span>
+                                                          <span class="btn-inner--text">Submit</span>
+                                                        </button>
+                                                    </div>
+                                                  </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button class="btn btn-icon btn-3 btn-success" type="button">
+	                          <span class="btn-inner--icon"><i class="ni ni-check-bold"></i></span>
+                              <span class="btn-inner--text">Submit Task</span>
+                            </button>
+                            <button type="button" class="btn btn-link  ml-auto" data-dismiss="modal">Done</button>
+                          </div>
+                        </div>
                     </div>
                   </div>
-            </form>
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-4 col-lg-6 ">
-          <div class="card shadow">
-            <div class="card-header border-0">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">Add new YouTube task</h3>
-                    Provide the link to the video. Only 1 minute of the video with maximal resolution 480p will be processed. 
                 </div>
               </div>
             </div>
-            <div class="card-body">
-            <form enctype="multipart/form-data" action="/addtask" method="post">
-              <div class="row">
-                <div class="col">
-                  <div class="form-group">
-                    <input type="url" class="form-control" name="youtubevideo" placeholder="https://www.youtube.com/watch?v=Fzd-e1TUhCg">
-                  </div>
-                </div>
-              </div>
-                  <div class="row">
-                      <div class="col text-right">
-                        <button class="btn btn-icon btn-3 btn-primary" type="submit" value="youtubefile">
-                          <span class="btn-inner--icon"><i class="ni ni-cloud-upload-96"></i></span>
-                          <span class="btn-inner--text">Submit</span>
-                        </button>
-                    </div>
-                  </div>
-            </form>
+            <div class="table-responsive">
+              <table class="table align-items-center table-flush">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">Project</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Detected Persons</th>
+                    <th scope="col">Current Stage</th>
+                    <th scope="col">Completion</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for file in files %}
+                  <tr>
+                    <th scope="row">
+                      {{ file.filename }}
+                    </th>
+                    <td>
+                      {% if file.json_file != None %}
+                        <a href=/output/{{ file.json_file }}>Download</a>
+                      {% else %}
+                        None Yet
+                      {% end %}
+                    </td>
+                    <td>
+                      {% if file != None %}
+                        <a href=/output/{{ file }}>Download</a>
+                      {% else %}
+                        None Yet
+                      {% end %}
+                    </td>
+                    <td>
+                      {% if file.status == 0 %}
+                        Queued
+                      {% elif file.status == 1 %}
+                        Processing
+                      {% elif file.status == 2 %}
+                        Finished
+                      {% elif file.status == 3 %}
+                        Failed
+                      {% end %}
+                    </td>
+                  </tr>
+                  {% end %}
+                </tbody>
+                <tbody>
+                {% for file in files %}
+                  <tr>
+                    <th scope="row">
+                      <div class="media align-items-center">
+                        <a href="#" class="avatar rounded-circle mr-3">
+                          <img alt="Image placeholder" src="../assets/img/theme/bootstrap.jpg">
+                        </a>
+                        <div class="media-body">
+                          <span class="mb-0 text-sm">{{ file.filename }}</span>
+                        </div>
+                      </div>
+                    </th>
+                    <td>
+                      <span class="badge badge-dot mr-4">
+                        <i class="bg-warning"></i> pending
+                      </span>
+                    </td>
+                    <td>
+                      <div class="avatar-group">
+                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Ryan Tompson">
+                          <img alt="Image placeholder" src="../assets/img/theme/team-1-800x800.jpg" class="rounded-circle">
+                        </a>
+                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Romina Hadid">
+                          <img alt="Image placeholder" src="../assets/img/theme/team-2-800x800.jpg" class="rounded-circle">
+                        </a>
+                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Alexander Smith">
+                          <img alt="Image placeholder" src="../assets/img/theme/team-3-800x800.jpg" class="rounded-circle">
+                        </a>
+                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Jessica Doe">
+                          <img alt="Image placeholder" src="../assets/img/theme/team-4-800x800.jpg" class="rounded-circle">
+                        </a>
+                      </div>
+                    </td>
+                    <td>
+                      $2,500 USD
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <span class="mr-2">60%</span>
+                        <div>
+                          <div class="progress">
+                            <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-right">
+                      <div class="dropdown">
+                        <a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <i class="fas fa-ellipsis-v"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+                          <a class="dropdown-item" href="#">Action</a>
+                          <a class="dropdown-item" href="#">Another action</a>
+                          <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                {% end %}
+                </tbody>
+              </table>
             </div>
-          </div>
-        </div>
-        <div class="col-xl-4 col-lg-6 ">
-          <div class="card shadow">
-            <div class="card-header border-0">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">Add new image task</h3>
-                  .png, .jpg and .jpeg formats are accepted. Only one image is allowed.
-                </div>
-              </div>
-            </div>
-            <div class="card-body">
-            <form enctype="multipart/form-data" action="/addtask" method="post">
-                  <div class="row">
-                    <div class="col">
-                <div class="custom-file">
-                    <input type="file" accept="image/*" class="custom-file-input" id="customFileLang" name="imagefile">
-                    <label class="custom-file-label" for="customFileLang" >Select image</label>
-                  </div>
-                </div>
-                </div>
-                    <div class="row" style="margin-top: 1em;">
-                      <div class="col text-right">
-                        <button class="btn btn-icon btn-3 btn-primary" type="submit" value="upload">
-                          <span class="btn-inner--icon"><i class="ni ni-cloud-upload-96"></i></span>
-                          <span class="btn-inner--text">Upload</span>
-                        </button>
-                    </div>
-                  </div>
-            </form>
+            <div class="card-footer py-4">
+              <nav aria-label="...">
+                <ul class="pagination justify-content-end mb-0">
+                  <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">
+                      <i class="fas fa-angle-left"></i>
+                      <span class="sr-only">Previous</span>
+                    </a>
+                  </li>
+                  <li class="page-item active">
+                    <a class="page-link" href="#">1</a>
+                  </li>
+                  <li class="page-item">
+                    <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
+                  </li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="page-item">
+                    <a class="page-link" href="#">
+                      <i class="fas fa-angle-right"></i>
+                      <span class="sr-only">Next</span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
@@ -217,8 +411,8 @@
                       {% end %}
                     </td>
                     <td>
-                      {% if file.output_file != None %}
-                        <a href=/output/{{ file.output_file }}>Download</a>
+                      {% if file != None %}
+                        <a href=/output/{{ file }}>Download</a>
                       {% else %}
                         None Yet
                       {% end %}
@@ -231,8 +425,8 @@
                       {% elif file.status == 2 %}
                         Finished
                       {% elif file.status == 3 %}
-                        Failed                      
-                      {% end %}                      
+                        Failed
+                      {% end %}
                     </td>
                   </tr>
                   {% end %}

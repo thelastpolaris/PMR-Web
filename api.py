@@ -1,65 +1,39 @@
-from tornado_sqlalchemy import SessionMixin
+from tornado_sqlalchemy import SessionMixin, as_future
 from tornado.web import RequestHandler
-import json
-import jwt
 from models import User
-import bcrypt
+from tornado import escape
 
-class APIHandler(RequestHandler):
+class APIHandler(SessionMixin, RequestHandler):
 	async def get(self):
-		self.write("Hello World!")
+		self.write("PMR's API")
 
 	async def post(self):
-		self.write("Hello World!")
-
-	def check_xsrf_cookie(self):
-		pass
-
-class APIAuthHandler(SessionMixin, RequestHandler):
-	def get(self):
-		self.write('Auth!!')
-		self.finish()
-
-	def post(self):
-		print("\n")
-		print(self.request.body)
-		print("\n")
-		data = json.loads(self.request.body)
-		try:
-			login = data["username"]
-			password = data["password"]
-		except:
-			self.set_status(403)
-			return
-
 		with self.make_session() as session:
-			user = session.query(User).filter(User.login == login).filter(User.type == "user").first()
+			self._session = session
+			args, user = await self.init_API_request()
+
 			if user:
-				hashed_pass = user.password.encode("utf-8")
+				self.write("Welcome to API {}".format(user.login))
 
-				if bcrypt.hashpw(password, hashed_pass) == hashed_pass:
-					self.write("Welcome back, {}".format(user.login))
-				else:
-					self.write("Wrong Password")
-			else:
-				self.write("Username not found")
 
-		if password:
-			query = "SELECT id, login FROM user WHERE login = %s AND password = SHA1(%s)"
-			result = self.db.get(query, login, password)
+	async def init_API_request(self):
+		args = escape.json_decode(self.request.body)
+		token = args.get("access_token")
 
-		if result is not None and result.id is not None:
-			dataToken = {"id": result.id, "login": result.login}
-			token = jwt.encode(dataToken, "nyxjs", algorithm='HS256')
-			status = True
-			res = result
+		if not token:
+			self.write("No access token provided. Access denied.")
+			return None, None
 		else:
-			token = None
-			status = False
-			res = "Invalid Username or Password."
+			token = token.encode("utf-8")
 
-		self.write({"data": res, "result": status, "token": token})
-		self.finish()
+		user = await as_future(self._session.query(User).filter(User.api_token == token).first)
+
+		if not user:
+			self.write("Wrong user")
+			return None, None
+
+		return args, user
+
 
 	def check_xsrf_cookie(self):
 		pass

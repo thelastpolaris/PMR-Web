@@ -11,7 +11,6 @@
           <div class="col-lg-7 col-md-10">
             <h1 class="display-2 text-white">Hello {{ user.login }}</h1>
             <p class="text-white mt-0 mb-5">This is your profile page. You can edit your personal data, generate your API token and see some statistics about your account</p>
-            <a href="#!" class="btn btn-info">Edit profile</a>
           </div>
         </div>
       </div>
@@ -83,9 +82,9 @@
                                 </button>
                             </div>
                             <div class="modal-body text-left">
-                                Use the following token to access PMR's API. Your request's body should contain a key
+                                Use the following token to access PMR's API. Request's body should contain a key
                               "token" with token as a value. <b>Don't share your token with anybody!</b> In case the
-                                token got compromised, issue a new immediately by clicking on "Generate Token" button.
+                                token got compromised, issue a new one immediately by clicking "Generate Token" button.
 
                               <div id="display-token" class="pb-4 pt-5 text-center">
                                 {{ user.api_token }}

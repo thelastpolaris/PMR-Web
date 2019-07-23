@@ -1,6 +1,5 @@
 import tornado.auth
 from tornado import escape
-import tornado.web
 import tornado
 
 class GithubOAuth2Mixin(tornado.auth.OAuth2Mixin):
@@ -20,8 +19,10 @@ class GithubOAuth2Mixin(tornado.auth.OAuth2Mixin):
         }
 
         fields = {'login','id', 'email', 'avatar_url'}
+
         if extra_fields:
             fields.update(extra_fields)
+
         response = await http.fetch(
             self._oauth_request_token_url(**args),
             headers={"Accept": "application/json"},

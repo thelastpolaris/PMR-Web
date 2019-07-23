@@ -4,7 +4,7 @@ import tornado.web
 import os
 
 from pipelines import createPipeline
-from models import User, File
+from models import User, Task
 import datetime
 import pytube
 
@@ -22,11 +22,11 @@ class DashboardHandler(SessionMixin, BaseHandler):
 
         with self.make_session() as session:
             user = await as_future(session.query(User).filter(User.id == user_id).first)
-            files = await as_future(session.query(File).filter(File.user_id == user_id).all)
+            files = await as_future(session.query(Task).filter(Task.user_id == user_id).all)
 
-            processed_files = await as_future(session.query(File).filter(File.user_id == user_id).filter(File.status == 2).count)
-            inprocess_files = await as_future(session.query(File).filter(File.user_id == user_id).filter(File.status != 2).count)
-            processing_globally = await as_future(session.query(File).filter(File.status != 2).count)
+            processed_files = await as_future(session.query(Task).filter(Task.user_id == user_id).filter(Task.status == 2).count)
+            inprocess_files = await as_future(session.query(Task).filter(Task.user_id == user_id).filter(Task.status != 2).count)
+            processing_globally = await as_future(session.query(Task).filter(Task.status != 2).count)
 
             args = {
                 "title": "Poor's Man Rekognition - Dashboard",
@@ -71,7 +71,7 @@ class UserPanelHandler(SessionMixin, BaseHandler):
     @tornado.web.authenticated
     def post(self):
         user_id = self.get_secure_cookie("user_id")
-        if self.get_body_argument("generate_token"):
+        if self.get_argument("generate_token"):
             with self.make_session() as session:
                 user = session.query(User).filter(User.id == user_id).first()
 
@@ -137,7 +137,7 @@ class TaskHandler(SessionMixin, BaseHandler):
             fh.write(fileinfo['body'])
 
         with self.make_session() as session:
-            file = File(user_id, fname)
+            file = Task(user_id, fname)
             session.add(file)
             session.commit()
 
@@ -173,7 +173,6 @@ class TaskHandler(SessionMixin, BaseHandler):
             if isFinished:
                 file.status = 2
                 file.json_file = output_json
-                file.output_file = output_file
                 session.commit()
             else:
                 file.status = 3

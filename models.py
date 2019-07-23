@@ -31,17 +31,17 @@ class User(DeclarativeBase):
     def generateToken(self):
         self.api_token = token_hex(32)
 
-class File(DeclarativeBase):
-    __tablename__ = 'files'
+class Task(DeclarativeBase):
+    __tablename__ = 'tasks'
 
     id = Column(BigInteger, primary_key=True)
     user_id = Column(BigInteger, unique=False)
     filename = Column(String(255), unique=False)
     json_file = Column(String(255), unique=False)
-    output_file = Column(String(255), unique=False)
     status = Column(SmallInteger, unique=False)
 
     def __init__(self, user_id, filename):
         self.user_id = user_id
         self.filename = filename
         self.status = 0
+
