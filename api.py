@@ -1,9 +1,9 @@
 from tornado_sqlalchemy import SessionMixin, as_future
-from tornado.web import RequestHandler
 from models import User
 from tornado import escape
+from basehandler import BaseHandler
 
-class APIHandler(SessionMixin, RequestHandler):
+class APIHandler(BaseHandler):
 	async def get(self):
 		self.write("PMR's API")
 

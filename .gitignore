@@ -1,2 +1,9 @@
 *.pyc
 /.idea
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.avi
+*.webm

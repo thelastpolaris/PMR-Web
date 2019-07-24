@@ -4927,6 +4927,9 @@ input[type='button'].btn-block
     border-radius: .375rem;
     background-color: #fff;
     box-shadow: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
 }
 .custom-file-label::after
 {
@@ -20710,11 +20713,17 @@ textarea[resize='horizontal']
 {
     border-left-color: black;
 }
+/*
+@keyframes flickerAnimation {
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:0; }
+}*/
 
 .progress-wrapper
 {
     position: relative;
-
+    transition: opacity 0.5s ease-in;
     padding-top: 1.5rem;
 }
 
@@ -21867,3 +21876,5 @@ html:not([dir='rtl']) .noUi-horizontal .noUi-handle
 
     height: 3px;
 }
+
+/* Custom */

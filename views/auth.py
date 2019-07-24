@@ -1,6 +1,5 @@
-from .basehandler import BaseHandler
+from basehandler import BaseHandler
 from tornado.auth import GoogleOAuth2Mixin
-from tornado_sqlalchemy import SessionMixin
 import tornado.web
 import json
 from .github_auth import GithubOAuth2Mixin
@@ -10,7 +9,7 @@ from models import User
 
 __UPLOADS__ = "uploads/"
 
-class PMRAuthHandler(SessionMixin, BaseHandler):
+class PMRAuthHandler(BaseHandler):
     type = ""
 
     def auth_failed(self, auth_name):

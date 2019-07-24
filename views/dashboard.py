@@ -1,5 +1,5 @@
-from tornado_sqlalchemy import SessionMixin, as_future
-from .basehandler import BaseHandler
+from tornado_sqlalchemy import as_future
+from basehandler import BaseHandler
 import tornado.web
 import os
 
@@ -8,9 +8,10 @@ from models import User, Task
 import datetime
 import pytube
 
+
 __UPLOADS__ = "uploads/"
 
-class DashboardHandler(SessionMixin, BaseHandler):
+class DashboardHandler(BaseHandler):
     @tornado.web.authenticated
     async def get(self):
         if len(self.get_arguments("logout")) > 0:
@@ -44,7 +45,7 @@ class DashboardHandler(SessionMixin, BaseHandler):
         self.write("You wrote " + self.get_body_argument("message"))
 
 
-class UserPanelHandler(SessionMixin, BaseHandler):
+class UserPanelHandler(BaseHandler):
     @tornado.web.authenticated
     async def get(self):
         if len(self.get_arguments("logout")) > 0:
@@ -85,7 +86,35 @@ class UserPanelHandler(SessionMixin, BaseHandler):
                 else:
                     self.write("Wrong user")
 
-class TaskHandler(SessionMixin, BaseHandler):
+class FileHandler(BaseHandler):
+    @tornado.web.authenticated
+    async def post(self):
+        user_id = self.get_secure_cookie("user_id")
+
+        if os.path.exists(__UPLOADS__) != True:
+            os.mkdir(__UPLOADS__)
+
+        fileinfo = self.request.files[mode][0]
+        fname = fileinfo['filename']
+        fname = fname.replace(" ", "")
+
+        folder = __UPLOADS__
+
+        if mode == "imagefile":
+            now = datetime.datetime.now()
+            new_dir = str(now.month) + str(now.day) + str(now.hour) + str(now.minute) + str(now.second)
+
+            folder = folder + new_dir + "/"
+            if os.path.isdir(folder) == False:
+                os.mkdir(folder)
+
+        filename = folder + fname
+
+        fh = open(filename, 'wb')
+        fh.write(fileinfo['body'])
+
+
+class TaskHandler(BaseHandler):
     @tornado.web.authenticated
     async def post(self):
         user_id = self.get_secure_cookie("user_id")
@@ -141,7 +170,9 @@ class TaskHandler(SessionMixin, BaseHandler):
             session.add(file)
             session.commit()
 
-            self.redirect("/")
+            # self.redirect("/")
+            self.write("File Uploaded")
+            return
 
             # Update status to pending
             file.status = 1
@@ -180,4 +211,3 @@ class TaskHandler(SessionMixin, BaseHandler):
 
             # file.
         # with self.make_session() as session:
-
