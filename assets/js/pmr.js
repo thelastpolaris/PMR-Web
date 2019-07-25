@@ -58,7 +58,6 @@ function getCookie(name) {
 
 function uploadFile() {
   var file = _("uploadVideoFile").files[0];
-  // alert(file.name+" | "+file.size+" | "+file.type);
   var formdata = new FormData();
   formdata.append("file1", file);
   formdata.append("_xsrf", getCookie("_xsrf"))
@@ -67,8 +66,35 @@ function uploadFile() {
   ajax.addEventListener("load", completeHandler, false);
   ajax.addEventListener("error", errorHandler, false);
   ajax.addEventListener("abort", abortHandler, false);
-  ajax.open("POST", "/addtask");
+  ajax.open("POST", "/uploadfile");
   ajax.send(formdata);
+}
+
+function submitTask() {
+  var formdata = new FormData();
+  formdata.append("fileID", _("videoFileID").value)
+  formdata.append("_xsrf", getCookie("_xsrf"))
+  var ajax = new XMLHttpRequest();
+      ajax.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            $.notify({
+                    icon: 'ni ni-check-bold',
+                    message: "<b>Success!</b> New Task is added to the queue"
+                },
+                {
+                    type: "success",
+                    allow_dismiss: true,
+                    placement: {
+                        align: "center"
+                    },
+                });
+
+            $('#add-task-modal').modal('hide');
+
+           }
+        };
+    ajax.open("POST", "/addtask", true);
+    ajax.send(formdata);
 }
 
 function progressHandler(event) {
@@ -76,12 +102,18 @@ function progressHandler(event) {
   var percent = Math.round((event.loaded / event.total) * 100);
   _("videoUploadProgressPercentage").children[0].innerHTML = percent + "%";
   _("videoUploadProgressBar").style.width = percent + "%";
-
-//  _("status").innerHTML = Math.round(percent) + "% uploaded... please wait";
 }
 
 function completeHandler(event) {
-  _("videoUploadProgressLabel").children[0].innerHTML = event.target.responseText;
+    var status = ""
+    if (event.target.status == 200) {
+        _("submit-task").disabled = false
+        status = "File Uploaded"
+        _("videoFileID").value = event.target.responseText
+    } else {
+        status = "Not Uploaded"
+    }
+    _("videoUploadProgressLabel").children[0].innerHTML = status;
 }
 
 function errorHandler(event) {

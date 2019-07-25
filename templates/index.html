@@ -75,15 +75,17 @@
                 <h3 class="mb-0">Latest Tasks</h3>
                 </div>
                 <div class="col-4 text-right">
-                  <button onclick="resetUploadForm()" type="button" id="add-task" class="btn btn-warning" data-toggle="modal" data-target="#modal-default">
+                  <button onclick="resetUploadForm()" type="button" id="add-task" class="btn btn-warning" data-toggle="modal" data-target="#add-task-modal">
                     <div>
                       <i class="ni ni-fat-add"></i>
                       <span>Add Task</span>
                     </div>
                   </button>
-                  <div class="modal fade" id="modal-default" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+                  <div class="modal fade" id="add-task-modal" tabindex="-1" role="dialog" aria-labelledby="add-task-modal" aria-hidden="true">
+                    <form enctype="multipart/form-data" method="post">
+                    <input type="hidden" id="videoFileID" name="fileID" value="-1">
                     <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
-                        <div id="add-task-modal" class="modal-content">
+                        <div class="modal-content">
                             <div class="modal-header">
                                 <h6 class="modal-title" id="modal-title-default">Add Task</h6>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -113,7 +115,6 @@
                                                 Only .mp4 files. Please, choose small-sized files due to the slow internet connection of the server. Only 1 minute of the video will be processed.
                                               </div>
                                             </div>
-                                          <form enctype="multipart/form-data" method="post">
                                                 <div class="row">
                                                   <div class="col">
                                               <div class="custom-file">
@@ -143,7 +144,6 @@
                                                       </button>
                                                   </div>
                                                 </div>
-                                          </form>
                                         </div>
                                         <div class="tab-pane fade" id="tabs-icons-text-2" role="tabpanel" aria-labelledby="images-tab">
                                               <div class="row align-items-center">
@@ -151,7 +151,6 @@
                                                   .png, .jpg and .jpeg formats are accepted. Only one image is allowed.
                                                 </div>
                                               </div>
-                                            <form enctype="multipart/form-data" method="post">
                                               <div class="row">
                                                 <div class="col">
                                                   <div class="custom-file">
@@ -168,7 +167,6 @@
                                                     </button>
                                                 </div>
                                               </div>
-                                            </form>
                                         </div>
                                         <div class="tab-pane fade" id="tabs-icons-text-3" role="tabpanel" aria-labelledby="youtube-tab">
                                           <div class="row align-items-center">
@@ -176,7 +174,6 @@
                                                     Provide the link to the video. Only 1 minute of the video with maximal resolution 480p will be processed.
                                                 </div>
                                               </div>
-                                            <form enctype="multipart/form-data" action="/addtask" method="post">
                                               <div class="row">
                                                 <div class="col">
                                                   <div class="form-group">
@@ -192,14 +189,13 @@
                                                         </button>
                                                     </div>
                                                   </div>
-                                            </form>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                           </div>
                           <div class="modal-footer">
-                            <button id="submit-task" class="btn btn-icon btn-3 btn-success" type="button" disabled>
+                            <button onclick="submitTask()" id="submit-task" class="btn btn-icon btn-3 btn-success" type="button" disabled>
 	                          <span class="btn-inner--icon"><i class="ni ni-check-bold"></i></span>
                               <span class="btn-inner--text">Submit Task</span>
                             </button>
@@ -207,6 +203,7 @@
                           </div>
                         </div>
                     </div>
+                  </form>
                   </div>
                 </div>
               </div>
@@ -217,89 +214,59 @@
                   <tr>
                     <th scope="col">Project</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Detected Persons</th>
-                    <th scope="col">Current Stage</th>
+<!--                    <th scope="col">Detected Persons</th>-->
                     <th scope="col">Completion</th>
                     <th scope="col"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for file in files %}
-                  <tr>
-                    <th scope="row">
-                      {{ file.filename }}
-                    </th>
-                    <td>
-                      {% if file.json_file != None %}
-                        <a href=/output/{{ file.json_file }}>Download</a>
-                      {% else %}
-                        None Yet
-                      {% end %}
-                    </td>
-                    <td>
-                      {% if file != None %}
-                        <a href=/output/{{ file }}>Download</a>
-                      {% else %}
-                        None Yet
-                      {% end %}
-                    </td>
-                    <td>
-                      {% if file.status == 0 %}
-                        Queued
-                      {% elif file.status == 1 %}
-                        Processing
-                      {% elif file.status == 2 %}
-                        Finished
-                      {% elif file.status == 3 %}
-                        Failed
-                      {% end %}
-                    </td>
-                  </tr>
-                  {% end %}
-                </tbody>
-                <tbody>
-                {% for file in files %}
+                {% for file, task in zip(files, tasks) %}
                   <tr>
                     <th scope="row">
                       <div class="media align-items-center">
                         <a href="#" class="avatar rounded-circle mr-3">
-                          <img alt="Image placeholder" src="../assets/img/theme/bootstrap.jpg">
+                          <img alt="Image placeholder" src="{{ static_url(task.image) }}">
                         </a>
                         <div class="media-body">
-                          <span class="mb-0 text-sm">{{ file.filename }}</span>
+                          <span class="mb-0 text-sm">{{ file.filename.split("/")[-1] }}</span>
                         </div>
                       </div>
                     </th>
                     <td>
                       <span class="badge badge-dot mr-4">
-                        <i class="bg-warning"></i> pending
+                        {% if task.status == 0 %}
+                       <i class="bg-info"></i> Queued
+                      {% elif task.status == 1 %}
+                        <i class="bg-success"></i> Processing ({{ task.current_stage }})
+                      {% elif task.status == 2 %}
+                        <i class="bg-success"></i> Finished
+                      {% elif task.status == 3 %}
+                       <i class="bg-warning"></i> Failed
+                      {% end %}
                       </span>
                     </td>
-                    <td>
-                      <div class="avatar-group">
-                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Ryan Tompson">
-                          <img alt="Image placeholder" src="../assets/img/theme/team-1-800x800.jpg" class="rounded-circle">
-                        </a>
-                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Romina Hadid">
-                          <img alt="Image placeholder" src="../assets/img/theme/team-2-800x800.jpg" class="rounded-circle">
-                        </a>
-                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Alexander Smith">
-                          <img alt="Image placeholder" src="../assets/img/theme/team-3-800x800.jpg" class="rounded-circle">
-                        </a>
-                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Jessica Doe">
-                          <img alt="Image placeholder" src="../assets/img/theme/team-4-800x800.jpg" class="rounded-circle">
-                        </a>
-                      </div>
-                    </td>
-                    <td>
-                      $2,500 USD
-                    </td>
+<!--                    <td>-->
+<!--                      <div class="avatar-group">-->
+<!--                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Ryan Tompson">-->
+<!--                          <img alt="Image placeholder" src="../assets/img/theme/team-1-800x800.jpg" class="rounded-circle">-->
+<!--                        </a>-->
+<!--                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Romina Hadid">-->
+<!--                          <img alt="Image placeholder" src="../assets/img/theme/team-2-800x800.jpg" class="rounded-circle">-->
+<!--                        </a>-->
+<!--                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Alexander Smith">-->
+<!--                          <img alt="Image placeholder" src="../assets/img/theme/team-3-800x800.jpg" class="rounded-circle">-->
+<!--                        </a>-->
+<!--                        <a href="#" class="avatar avatar-sm" data-toggle="tooltip" data-original-title="Jessica Doe">-->
+<!--                          <img alt="Image placeholder" src="../assets/img/theme/team-4-800x800.jpg" class="rounded-circle">-->
+<!--                        </a>-->
+<!--                      </div>-->
+<!--                    </td>-->
                     <td>
                       <div class="d-flex align-items-center">
-                        <span class="mr-2">60%</span>
+                        <span class="mr-2">{{ task.completion }}%</span>
                         <div>
                           <div class="progress">
-                            <div class="progress-bar bg-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
+                            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="{{ task.completion }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ task.completion }}%;"></div>
                           </div>
                         </div>
                       </div>
@@ -310,9 +277,8 @@
                           <i class="fas fa-ellipsis-v"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                          <a class="dropdown-item" href="#">Action</a>
-                          <a class="dropdown-item" href="#">Another action</a>
-                          <a class="dropdown-item" href="#">Something else here</a>
+                          <a class="dropdown-item" href="#">Pause</a>
+                          <a class="dropdown-item" href="#">Delete</a>
                         </div>
                       </div>
                     </td>
@@ -322,91 +288,32 @@
               </table>
             </div>
             <div class="card-footer py-4">
-              <nav aria-label="...">
-                <ul class="pagination justify-content-end mb-0">
-                  <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">
-                      <i class="fas fa-angle-left"></i>
-                      <span class="sr-only">Previous</span>
-                    </a>
-                  </li>
-                  <li class="page-item active">
-                    <a class="page-link" href="#">1</a>
-                  </li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
-                  </li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">
-                      <i class="fas fa-angle-right"></i>
-                      <span class="sr-only">Next</span>
-                    </a>
-                  </li>
-                </ul>
-              </nav>
+<!--              <nav aria-label="...">-->
+<!--                <ul class="pagination justify-content-end mb-0">-->
+<!--                  <li class="page-item disabled">-->
+<!--                    <a class="page-link" href="#" tabindex="-1">-->
+<!--                      <i class="fas fa-angle-left"></i>-->
+<!--                      <span class="sr-only">Previous</span>-->
+<!--                    </a>-->
+<!--                  </li>-->
+<!--                  <li class="page-item active">-->
+<!--                    <a class="page-link" href="#">1</a>-->
+<!--                  </li>-->
+<!--                  <li class="page-item">-->
+<!--                    <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>-->
+<!--                  </li>-->
+<!--                  <li class="page-item"><a class="page-link" href="#">3</a></li>-->
+<!--                  <li class="page-item">-->
+<!--                    <a class="page-link" href="#">-->
+<!--                      <i class="fas fa-angle-right"></i>-->
+<!--                      <span class="sr-only">Next</span>-->
+<!--                    </a>-->
+<!--                  </li>-->
+<!--                </ul>-->
+<!--              </nav>-->
             </div>
           </div>
         </div>
       </div>
-      <div class="row mt-5">
-        <div class="col">
-          <div class="card shadow">
-            <div class="card-header border-0">
-              <div class="row align-items-center">
-                <div class="col">
-                  <h3 class="mb-0">Last tasks</h3>
-                </div>
-              </div>
-            </div>
-            <div class="table-responsive">
-              <!-- Projects table -->
-              <table class="table align-items-center table-flush">
-                <thead class="thead-light">
-                  <tr>
-                    <th scope="col">Filename</th>
-                    <th scope="col">JSON Output</th>
-                    <th scope="col">Video/Image Output</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for file in files %}
-                  <tr>
-                    <th scope="row">
-                      {{ file.filename }}
-                    </th>
-                    <td>
-                      {% if file.json_file != None %}
-                        <a href=/output/{{ file.json_file }}>Download</a>
-                      {% else %}
-                        None Yet
-                      {% end %}
-                    </td>
-                    <td>
-                      {% if file != None %}
-                        <a href=/output/{{ file }}>Download</a>
-                      {% else %}
-                        None Yet
-                      {% end %}
-                    </td>
-                    <td>
-                      {% if file.status == 0 %}
-                        Added
-                      {% elif file.status == 1 %}
-                        Processing
-                      {% elif file.status == 2 %}
-                        Finished
-                      {% elif file.status == 3 %}
-                        Failed
-                      {% end %}
-                    </td>
-                  </tr>
-                  {% end %}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
+
 {% end %}

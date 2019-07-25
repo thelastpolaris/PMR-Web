@@ -34,7 +34,7 @@ absFilePath = os.path.abspath(__file__)
 fileDir = os.path.dirname(os.path.abspath(__file__))
 parentDir = os.path.dirname(fileDir)
 
-def createPipeline(input_path, isImage = False, useYolo = False, max_frames = None):
+def createPipeline(input_path, progress_callback = None, isImage = False, useYolo = True, max_frames = None):
 	filename = os.path.basename(input_path)
 	filename_wo_ext = os.path.splitext(filename)[0]
 
@@ -58,35 +58,32 @@ def createPipeline(input_path, isImage = False, useYolo = False, max_frames = No
 		face_detector = MobileNetsSSDFaceDetector()
 
 	face_detector = FaceDetectorElem(face_detector)
-
 	datahandler = VideoHandlerElem()
 
 	# Face Recognizer
-	# face_recognizer = FaceRecognizerElem(ArcFaceRecognizer(fileDir + "/rekognition/model/arcface/classifiers/arcface_first_evals_scikit_aug.pkl"))
-	face_recognizer = FaceRecognizerElem(FacenetRecognizer(fileDir + "/rekognition/model/facenet/classifiers/facenet_first_evals_scikit_aug.pkl"))
+	# face_recognizer = FaceRecognizerElem(ArcFaceRecognizer(fileDir + "/../poors_man_rekognition/rekognition/model/arcface/classifiers/arcface_first_evals_scikit_aug.pkl"))
+	face_recognizer = FaceRecognizerElem(FacenetRecognizer(fileDir + "/../poors_man_rekognition/rekognition/model/facenet/classifiers/facenet_first_evals_scikit_aug.pkl"))
 	output_hand = VideoOutputHandler()
 
 	pipeline = Pipeline([datahandler,
 						 simframes,
 						 face_detector,
 						 face_recognizer,
-						 output_hand
+						 # output_hand
 						 ])
-
-	# Output Handler
-	if isImage:
-		output_hand = ImageOutputHandler()
-	else:
-		output_hand = VideoOutputHandler()
 
 	print(pipeline)
 
 	# Benchmarks stuff
 	out_name = "{}_{}_{}".format(filename_wo_ext, face_detector, face_recognizer)
-
-	pipeline.run({datahandler: {"input_path" : input_path, "max_frames" : 0, "preprocessors": [resizer]},
+	try:
+		JSON_data = pipeline.run({datahandler: {"input_path" : input_path, "preprocessors": [resizer]},
 				  simframes: {"sim_threshold": 0.99, "max_jobs": 10},
 				  face_detector: {"min_score": 0.6},
 				  face_recognizer: {"backend":"SciKit", "n_ngbr": 10},
-				  output_hand: {"output_name": out_name},
-				  pipeline: {"out_name": "output/" + out_name}}, benchmark=True)
+				  pipeline: {"out_name": "output/" + out_name}}, benchmark=True, progress_callback = progress_callback)
+
+		return JSON_data
+	except:
+		return False
+

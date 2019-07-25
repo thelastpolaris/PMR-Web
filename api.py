@@ -1,4 +1,4 @@
-from tornado_sqlalchemy import SessionMixin, as_future
+from tornado_sqlalchemy import as_future
 from models import User
 from tornado import escape
 from basehandler import BaseHandler
