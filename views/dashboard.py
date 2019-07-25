@@ -146,7 +146,7 @@ class TaskHandler(BaseHandler):
 		file_id = self.get_body_argument('fileID', default=None, strip=False)
 
 		with self.make_session() as session:
-
+			task_id = await TaskManager().add_task(user_id, file_id, session)
 			self.set_status(200)
 			self.finish("")
-			await TaskManager().add_task(user_id, file_id, session)
+			await TaskManager().run_task(task_id, session)

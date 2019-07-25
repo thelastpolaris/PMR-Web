@@ -10,15 +10,15 @@ import datetime
 import pytube
 
 class TaskManager():
-	__last_task_id = None
-	__last_session = None
+	__current_task_id = None
+	__current_session = None
 
 	def __init__(self):
-		self.__last_task_id = None
+		self.__current_task_id = None
 		self.__last_session = None
 
 	def update_task(self, current_elem, completion):
-		task = self.__last_session.query(Task).filter(Task.id == self.__last_task_id).first()
+		task = self.__current_session.query(Task).filter(Task.id == self.__current_task_id).first()
 
 		if current_elem:
 			task.current_stage = current_elem
@@ -26,8 +26,8 @@ class TaskManager():
 		if completion:
 			task.completion = completion
 
-		self.__last_session.add(task)
-		self.__last_session.commit()
+		self.__current_session.add(task)
+		self.__current_session.commit()
 
 	def get_random_frame(self, path_to_video):
 		container = av.open(path_to_video)
@@ -35,7 +35,7 @@ class TaskManager():
 		stream = container.streams.video[0]
 		decoder = container.decode(stream)
 		for i, frame in enumerate(decoder):
-			filename = "img/tasks/{}.png".format(self.__last_task_id)
+			filename = "img/tasks/{}.png".format(self.__current_task_id)
 			scipy.misc.toimage(frame.to_rgb().to_ndarray(), cmin=0.0, cmax=...).save(os.path.join("assets", filename))
 			return filename
 
@@ -56,15 +56,19 @@ class TaskManager():
 		task = Task(user_id, file_id)
 		# Update status to Processing
 		task.status = 1
-
-		session.add(task)
-		session.commit()
-		self.__last_task_id = task.id
-
 		task.image = self.get_random_frame(file.filename)
 
 		session.add(task)
 		session.commit()
+
+		return task.id
+
+	async def run_task(self, task_id, session):
+		task = await as_future(session.query(Task).filter(Task.id == task_id).first)
+		file = await as_future(session.query(File).filter(File.id == task.file_id).first)
+
+		self.__current_task_id = task_id
+		self.__current_session = session
 
 		JSON_data = await tornado.ioloop.IOLoop.current().run_in_executor(
 			None,

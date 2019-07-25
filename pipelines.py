@@ -76,14 +76,15 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 
 	# Benchmarks stuff
 	out_name = "{}_{}_{}".format(filename_wo_ext, face_detector, face_recognizer)
-	try:
-		JSON_data = pipeline.run({datahandler: {"input_path" : input_path, "preprocessors": [resizer]},
-				  simframes: {"sim_threshold": 0.99, "max_jobs": 10},
-				  face_detector: {"min_score": 0.6},
-				  face_recognizer: {"backend":"SciKit", "n_ngbr": 10},
-				  pipeline: {"out_name": "output/" + out_name}}, benchmark=True, progress_callback = progress_callback)
+	# try:
+	JSON_data = pipeline.run({datahandler: {"input_path" : input_path, "preprocessors": [resizer]},
+			  simframes: {"sim_threshold": 0.99, "max_jobs": 10},
+			  face_detector: {"min_score": 0.6},
+			  face_recognizer: {"backend":"SciKit", "n_ngbr": 10},
+			  pipeline: {"out_name": "output/" + out_name}}, benchmark=True, progress_callback = progress_callback)
 
-		return JSON_data
-	except:
-		return False
+	return JSON_data
+	# except Exception as e:
+	# 	print(e)
+		# return False
 
