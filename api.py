@@ -1,7 +1,7 @@
 from tornado_sqlalchemy import as_future
 from tornado import escape
 from basehandler import BaseHandler
-from models import File, User
+from models import File, User, Task
 import urllib.request
 from urllib.parse import urlparse
 import os
@@ -72,28 +72,51 @@ class APIUploadFileHandler(APIHandler):
 				else:
 					self.write({"error": "Failed to download file"})
 
-	def check_xsrf_cookie(self):
-		pass
+class APIAddTaskHandler(APIHandler):
+	async def get(self):
+		self.write("PMR's API - File Uploader")
+
+	async def post(self):
+		with self.make_session() as session:
+			self._session = session
+			args, user = await self.init_API_request()
+
+			if user:
+				file_id = int(args.get("file_id").encode("utf-8"))
+
+				task_id = await TaskManager().add_task(user.id, file_id, session)
+
+				json_response = {"task_id": task_id}
+				self.write(json_response)
+				self.finish('')
+
+				await TaskManager().run_task(task_id, session)
+			else:
+				self.write({"error": "Failed to download file"})
 
 class APITaskHandler(APIHandler):
 	async def get(self):
 		self.write("PMR's API - File Uploader")
-	#
-	# async def post(self):
-	# 	with self.make_session() as session:
-	# 		self._session = session
-	# 		args, user = await self.init_API_request()
-	#
-	# 		if user:
-	# 			file_id = args.get("file_id")
-	#
-	# 			await TaskManager().add_task(user_id, file_id, session)
-	#
-	# 			json_response = {"filename": filename, "file_id": file.id}
-	#
-	# 				self.write(json_response)
-	# 			else:
-	# 				self.write({"error": "Failed to download file"})
-	#
-	# def check_xsrf_cookie(self):
-	# 	pass
+
+	async def post(self):
+		with self.make_session() as session:
+			self._session = session
+			args, user = await self.init_API_request()
+
+			if user:
+				task_id = int(args.get("task_id").encode("utf-8"))
+
+				task = await as_future(self._session.query(Task).filter(Task.id == task_id).first)
+				file = await as_future(self._session.query(File).filter(File.id == task.file_id).first)
+
+				json_response = dict()
+				json_response["id"] = task_id
+				json_response["status"] = task.status
+				json_response["completion"] = task.completion
+				json_response["filename"] = file.filename
+				json_response["current_stage"] = task.current_stage
+				json_response["json_data"] = task.json_data
+
+				self.write(json_response)
+			else:
+				self.write({"error": "Failed to download file"})

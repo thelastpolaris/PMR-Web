@@ -51,7 +51,7 @@ class TaskManager():
 		file = await as_future(session.query(File).filter(File.id == file_id).first)
 
 		if not file:
-			raise FileExistsError
+			raise FileNotFoundError
 
 		task = Task(user_id, file_id)
 		# Update status to Processing

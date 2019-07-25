@@ -1,3 +1,0 @@
- SimilarFramesFinder(CompHist) {'Grouping Time': 0.23060321807861328, 'Group Frames': 11}
- FaceDetectorElem(YOLOv3FaceDetector) {'Inference Time': 5.164600133895874}
- FaceRecognizerElem(FacenetRecognizer) {'Recognition Time': 4.245971202850342}
