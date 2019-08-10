@@ -24,10 +24,6 @@ class DashboardHandler(BaseHandler):
 
 		with self.make_session() as session:
 			user = await as_future(session.query(User).filter(User.id == user_id).first)
-			tasks = await as_future(session.query(Task).filter(Task.user_id == user_id).all)
-			files = []
-			for task in tasks:
-				files.append(await as_future(session.query(File).filter(File.id == task.file_id).first))
 
 			processed_files = await as_future(session.query(Task).filter(Task.user_id == user_id).filter(Task.status == 2).count)
 			inprocess_files = await as_future(session.query(Task).filter(Task.user_id == user_id).filter(Task.status != 2).count)
@@ -36,8 +32,6 @@ class DashboardHandler(BaseHandler):
 			args = {
 				"title": "Poor's Man Rekognition - Dashboard",
 				"user": user,
-				"tasks": tasks,
-				"files": files,
 				"processed_files": processed_files,
 				"inprocess_files": inprocess_files,
 				"processing_globally": processing_globally
@@ -45,10 +39,30 @@ class DashboardHandler(BaseHandler):
 
 			self.render("index.html", **args)
 
-	def post(self):
-		self.set_header("Content-Type", "text/plain")
-		self.write("You wrote " + self.get_body_argument("message"))
+	@tornado.web.authenticated
+	async def post(self):
+		# self.set_header("Content-Type", "text/plain")
+		# self.write("You wrote " + self.get_body_argument("message"))
 
+		user_id = self.get_secure_cookie("user_id")
+
+		with self.make_session() as session:
+			tasks = await as_future(session.query(Task).filter(Task.user_id == user_id).all)
+			json_tasks = []
+
+			for task in tasks:
+				file = await as_future(session.query(File).filter(File.id == task.file_id).first)
+				json_task = dict()
+				json_task["image_url"] = self.static_url(task.image)
+				json_task["filename"] = file.filename.split("/")[-1]
+				json_task["status"] = task.status
+				json_task["current_stage"] = task.current_stage
+				json_task["completion"] = task.completion
+
+				json_tasks.append(json_task)
+
+			json_response = {"tasks": json_tasks}
+			self.write(json_response)
 
 class UserPanelHandler(BaseHandler):
 	@tornado.web.authenticated
@@ -148,5 +162,18 @@ class TaskHandler(BaseHandler):
 		with self.make_session() as session:
 			task_id = await TaskManager().add_task(user_id, file_id, session)
 			self.set_status(200)
-			self.finish("")
+
+			user_id = self.get_secure_cookie("user_id")
+
+			task = await as_future(session.query(Task).filter(Task.id == task_id).first)
+			file = await as_future(session.query(File).filter(File.id == task.file_id).first)
+
+			json_task = {"image_url": self.static_url(task.image),
+						 "filename": file.filename.split("/")[-1],
+						 "status": task.status,
+						 "current_stage": task.current_stage,
+						 "completion": task.completion
+			}
+
+			self.finish(json_task)
 			await TaskManager().run_task(task_id, session)

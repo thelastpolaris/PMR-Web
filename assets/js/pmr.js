@@ -75,7 +75,7 @@ function submitTask() {
   formdata.append("fileID", _("videoFileID").value)
   formdata.append("_xsrf", getCookie("_xsrf"))
   var ajax = new XMLHttpRequest();
-      ajax.onreadystatechange = function() {
+      ajax.onreadystatechange = function(data) {
         if (this.readyState == 4 && this.status == 200) {
             $.notify({
                     icon: 'ni ni-check-bold',
@@ -90,6 +90,10 @@ function submitTask() {
                 });
 
             $('#add-task-modal').modal('hide');
+
+            var task = JSON.parse(data["currentTarget"]["response"])
+            console.log(task["image_url"])
+            addTaskToList(task["image_url"], task["filename"], task["status"], task["current_stage"], task["completion"])
 
            }
         };
@@ -155,8 +159,7 @@ function resetUploadForm() {
         input_elem.dispatchEvent(event);
     }
     document.getElementById("uploadVideoFile").blur()
-
     document.getElementById("video-upload-progress").style.opacity = 0
-
     document.getElementById("submit-task").disabled = true;
 }
+

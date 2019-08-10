@@ -56,6 +56,13 @@ class TaskManager():
 		task = Task(user_id, file_id)
 		# Update status to Processing
 		task.status = 1
+
+		session.add(task)
+		session.commit()
+
+		self.__current_task_id = task.id
+		self.__current_session = session
+
 		task.image = self.get_random_frame(file.filename)
 
 		session.add(task)
@@ -67,7 +74,7 @@ class TaskManager():
 		task = await as_future(session.query(Task).filter(Task.id == task_id).first)
 		file = await as_future(session.query(File).filter(File.id == task.file_id).first)
 
-		self.__current_task_id = task_id
+		self.__current_task_id = task.id
 		self.__current_session = session
 
 		JSON_data = await tornado.ioloop.IOLoop.current().run_in_executor(

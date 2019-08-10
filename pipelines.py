@@ -87,4 +87,3 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 	except Exception as e:
 		print(e)
 		return False
-
