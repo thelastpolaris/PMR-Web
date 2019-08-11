@@ -45,29 +45,44 @@ class DashboardHandler(BaseHandler):
 		user_id = self.get_secure_cookie("user_id")
 
 		with self.make_session() as session:
-			tasks = await as_future(session.query(Task).filter(Task.user_id == user_id).all)
-			num_all_tasks = len(tasks)
-			json_tasks = []
+			mode = self.get_argument("mode", None)
 
-			start_i = int(self.get_argument("start", None))
-			amount = int(self.get_argument("amount", None))
+			if mode == "list":
+				tasks = await as_future(session.query(Task).filter(Task.user_id == user_id).all)
+				num_all_tasks = len(tasks)
+				json_tasks = []
 
-			if start_i is not None and amount:
-				tasks = tasks[start_i:(start_i + amount)]
+				start_i = int(self.get_argument("start", None))
+				amount = int(self.get_argument("amount", None))
 
-			for task in tasks:
-				file = await as_future(session.query(File).filter(File.id == task.file_id).first)
-				json_task = dict()
-				json_task["image_url"] = self.static_url(task.image)
-				json_task["filename"] = file.filename.split("/")[-1]
-				json_task["status"] = task.status
-				json_task["current_stage"] = task.current_stage
-				json_task["completion"] = task.completion
+				if start_i is not None and amount:
+					tasks = tasks[start_i:(start_i + amount)]
 
-				json_tasks.append(json_task)
+				for task in tasks:
+					file = await as_future(session.query(File).filter(File.id == task.file_id).first)
+					json_task = dict()
+					json_task["task_id"] = task.id
+					json_task["image_url"] = self.static_url(task.image)
+					json_task["filename"] = file.filename.split("/")[-1]
+					json_task["status"] = task.status
+					json_task["current_stage"] = task.current_stage
+					json_task["completion"] = task.completion
 
-			json_response = {"tasks": json_tasks, "num_all_tasks": num_all_tasks}
-			self.write(json_response)
+					json_tasks.append(json_task)
+
+				json_response = {"tasks": json_tasks, "num_all_tasks": num_all_tasks}
+				self.write(json_response)
+			elif mode == "delete":
+				task_id = int(self.get_argument("task_id", None))
+
+				task = await as_future(session.query(Task).filter(Task.id == task_id).first)
+				if task:
+					session.delete(task)
+
+				self.set_status(200)
+
+				json_response = {"status": "success"}
+				self.write(json_response)
 
 class UserPanelHandler(BaseHandler):
 	@tornado.web.authenticated

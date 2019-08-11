@@ -1,6 +1,6 @@
 'use strict';
 
-function taskRow(image_url, filename, status, current_stage, completion){
+function taskRow(task_id, image_url, filename, status, current_stage, completion){
    return `<tr>
             <th scope="row">
               <div class="media align-items-center">
@@ -37,7 +37,7 @@ function taskRow(image_url, filename, status, current_stage, completion){
                 </a>
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
                   ${status == 1 ? `<a class="dropdown-item" href="#">Pause</a>` : `<a class="dropdown-item" href="#">Rerun</a>`}
-                  <a class="dropdown-item" href="#">Delete</a>
+                  <button class="dropdown-item" onclick=deleteTask(${task_id})>Delete</button>
                 </div>
               </div>
             </td>
@@ -49,8 +49,8 @@ function getCookie(name) {
     return r ? r[1] : undefined;
 }
 
-function addTaskToList(image_url, filename, status, current_stage, completion) {
-    $("#taskLists").append(taskRow(image_url, filename, status, current_stage, completion))
+function addTaskToList(task_id, image_url, filename, status, current_stage, completion) {
+    $("#taskLists").append(taskRow(task_id, image_url, filename, status, current_stage, completion))
 }
 
 var global_current_page = 0
@@ -115,11 +115,44 @@ function tasksFinishLoading(num_all_tasks, current_page, tasks_per_page) {
     }
 }
 
+function deleteTask(task_id) {
+    var formdata = new FormData();
+
+    formdata.append("_xsrf", getCookie("_xsrf"))
+    formdata.append("mode", "delete")
+    formdata.append("task_id", task_id)
+    console.log(task_id)
+
+    $.ajax({
+      url: '/',
+      data: formdata,
+      processData: false,
+      contentType: false,
+      type: 'POST',
+      success: function(data) {
+        listTasks(global_current_page)
+
+        $.notify({
+                    icon: 'ni ni-check-bold',
+                    message: "<b>Success!</b> Task was deleted."
+                },
+                {
+                    type: "success",
+                    allow_dismiss: true,
+                    placement: {
+                        align: "center"
+                    },
+                });
+      }
+    });
+}
+
 function listTasks(page = 0, tasks_per_page = 3) {
     tasksStartLoading(tasks_per_page)
 
     var formdata = new FormData();
     formdata.append("_xsrf", getCookie("_xsrf"))
+    formdata.append("mode", "list")
     formdata.append("start", page*tasks_per_page)
     formdata.append("amount", tasks_per_page)
 
@@ -131,7 +164,7 @@ function listTasks(page = 0, tasks_per_page = 3) {
       type: 'POST',
       success: function(data){
         for (var d of data["tasks"]) {
-            addTaskToList(d["image_url"], d["filename"], d["status"], d["current_stage"], d["completion"])
+            addTaskToList(d["task_id"], d["image_url"], d["filename"], d["status"], d["current_stage"], d["completion"])
         }
         tasksFinishLoading(data["num_all_tasks"], page, tasks_per_page)
       }
