@@ -9,7 +9,11 @@ table tbody {
 }
 
 #taskLists {
-    height:500px;
+    min-height: 200px;
+}
+
+#pagination {
+    display: none;
 }
 
 table.loading tbody {

@@ -38,7 +38,6 @@ class APIHandler(BaseHandler):
 
 		return args, user
 
-
 	def check_xsrf_cookie(self):
 		pass
 

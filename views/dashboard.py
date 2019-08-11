@@ -4,6 +4,7 @@ import tornado.web
 import os
 
 from task import TaskManager
+from tornado import escape
 
 from pipelines import createPipeline
 from models import User, Task, File
@@ -41,14 +42,18 @@ class DashboardHandler(BaseHandler):
 
 	@tornado.web.authenticated
 	async def post(self):
-		# self.set_header("Content-Type", "text/plain")
-		# self.write("You wrote " + self.get_body_argument("message"))
-
 		user_id = self.get_secure_cookie("user_id")
 
 		with self.make_session() as session:
 			tasks = await as_future(session.query(Task).filter(Task.user_id == user_id).all)
+			num_all_tasks = len(tasks)
 			json_tasks = []
+
+			start_i = int(self.get_argument("start", None))
+			amount = int(self.get_argument("amount", None))
+
+			if start_i is not None and amount:
+				tasks = tasks[start_i:(start_i + amount)]
 
 			for task in tasks:
 				file = await as_future(session.query(File).filter(File.id == task.file_id).first)
@@ -61,7 +66,7 @@ class DashboardHandler(BaseHandler):
 
 				json_tasks.append(json_task)
 
-			json_response = {"tasks": json_tasks}
+			json_response = {"tasks": json_tasks, "num_all_tasks": num_all_tasks}
 			self.write(json_response)
 
 class UserPanelHandler(BaseHandler):
@@ -162,8 +167,6 @@ class TaskHandler(BaseHandler):
 		with self.make_session() as session:
 			task_id = await TaskManager().add_task(user_id, file_id, session)
 			self.set_status(200)
-
-			user_id = self.get_secure_cookie("user_id")
 
 			task = await as_future(session.query(Task).filter(Task.id == task_id).first)
 			file = await as_future(session.query(File).filter(File.id == task.file_id).first)
