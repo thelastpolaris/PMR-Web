@@ -137,6 +137,7 @@ class FileHandler(BaseHandler):
 	async def post(self):
 		user_id = int(self.get_secure_cookie("user_id"))
 		mode = list(self.request.files.keys())[0]
+		print(mode)
 
 		if not os.path.exists(__UPLOADS__):
 			os.mkdir(__UPLOADS__)
@@ -152,7 +153,7 @@ class FileHandler(BaseHandler):
 			new_dir = str(now.month) + str(now.day) + str(now.hour) + str(now.minute) + str(now.second)
 
 			folder = folder + new_dir + "/"
-			if os.path.isdir(folder) == False:
+			if not os.path.isdir(folder):
 				os.mkdir(folder)
 
 		filename = folder + fname

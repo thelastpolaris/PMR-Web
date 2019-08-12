@@ -87,8 +87,8 @@
                     </div>
                   </button>
                   <div class="modal fade" id="add-task-modal" tabindex="-1" role="dialog" aria-labelledby="add-task-modal" aria-hidden="true">
-                    <form enctype="multipart/form-data" method="post">
-                    <input type="hidden" id="videoFileID" name="fileID" value="-1">
+                    <input type="hidden" id="videoFileID" name="videoFileID" value="-1">
+                    <input type="hidden" id="imageFileID" name="imageFileID" value="-1">
                     <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -153,7 +153,7 @@
                                         <div class="tab-pane fade" id="tabs-icons-text-2" role="tabpanel" aria-labelledby="images-tab">
                                               <div class="row align-items-center">
                                                 <div class="col">
-                                                  .png, .jpg and .jpeg formats are accepted. Only one image is allowed.
+                                                  .png, .jpg and .jpeg formats are accepted. Upload either one image or a .zip archive with images.
                                                 </div>
                                               </div>
                                               <div class="row">
@@ -164,9 +164,22 @@
                                                     </div>
                                                   </div>
                                                 </div>
+                                            <div id="image-upload-progress" class="progress-wrapper">
+                                                <div class="progress-info">
+                                                  <div id="imageUploadProgressLabel" class="progress-label">
+                                                    <span>Task completed</span>
+                                                  </div>
+                                                  <div id="imageUploadProgressPercentage" class="progress-percentage">
+                                                    <span>0%</span>
+                                                  </div>
+                                                </div>
+                                                <div class="progress">
+                                                  <div id = "imageUploadProgressBar" class="progress-bar bg-primary" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>
+                                                </div>
+                                              </div>
                                                 <div class="row" style="margin-top: 1em;">
                                                   <div class="col text-right">
-                                                    <button onclick="uploadImages()" id="upload-image" class="btn btn-icon btn-3 btn-primary" type="submit" value="upload">
+                                                    <button onclick="uploadImages(this)" id="upload-image" class="btn btn-icon btn-3 btn-primary" type="submit" value="upload">
                                                       <span class="btn-inner--icon"><i class="ni ni-cloud-upload-96"></i></span>
                                                       <span class="btn-inner--text">Upload</span>
                                                     </button>
@@ -208,7 +221,6 @@
                           </div>
                         </div>
                     </div>
-                  </form>
                   </div>
                 </div>
               </div>
