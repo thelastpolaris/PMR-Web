@@ -147,7 +147,7 @@ function deleteTask(task_id) {
     });
 }
 
-function listTasks(page = 0, tasks_per_page = 3) {
+function listTasks(page = 0, tasks_per_page = 5) {
     tasksStartLoading(tasks_per_page)
 
     var formdata = new FormData();

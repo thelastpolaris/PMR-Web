@@ -8,3 +8,7 @@
 *.avi
 *.webm
 /output
+*.JPG
+*.PNG
+*.JPEG
+*.zip

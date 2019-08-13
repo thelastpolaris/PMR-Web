@@ -1,13 +1,16 @@
 import tornado.ioloop
 import tornado.web
 from views.auth import AuthCreateHandler, AuthLoginHandler, GoogleOAuth2LoginHandler, GithubLoginHandler
-from views.dashboard import DashboardHandler, UserPanelHandler, TaskHandler, FileHandler
+from views.dashboard import DashboardHandler, UserPanelHandler, TaskHandler
+from upload import FileHandler, YouTubeHandler
 from api import APIHandler, APIUploadFileHandler, APIAddTaskHandler, APITaskHandler
 from tornado_sqlalchemy import make_session_factory
 from tornado.web import StaticFileHandler
 import os
+import asyncio
+from tornado.platform.asyncio import AnyThreadEventLoopPolicy
 
-factory = make_session_factory("mysql://ccextractor:redwood32@localhost:3306/rekognition")
+factory = make_session_factory("mysql://ccextractor:redwood32@localhost:3306/rekognition?charset=utf8mb4")
 
 absFilePath = os.path.abspath(__file__)
 fileDir = os.path.dirname(os.path.abspath(__file__))
@@ -23,6 +26,7 @@ def make_app():
 		(r"/login_github", GithubLoginHandler),
 		(r"/addtask", TaskHandler),
 		(r"/uploadfile", FileHandler),
+		(r"/uploadyt", YouTubeHandler),
 		# API
 		(r"/api", APIHandler),
 		(r"/api/uploadfile", APIUploadFileHandler),
@@ -52,6 +56,7 @@ def make_app():
 		},
 		'login_url': "/login"
 	}
+	asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())
 	app = tornado.web.Application(urls, **settings)
 
 	return app

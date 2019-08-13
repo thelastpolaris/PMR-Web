@@ -42,7 +42,7 @@ function uploadVideo(e) {
 
     document.getElementById("video-upload-progress").style.opacity = 1
     uploadFile("uploadVideoFile", _("videoUploadProgressLabel"),
-    _("videoUploadProgressPercentage"), _("videoUploadProgressBar"), _("videoFileID"))
+    _("videoUploadProgressPercentage"), _("videoUploadProgressBar"), 0)
 
     e.disabled = true
 }
@@ -53,14 +53,24 @@ function uploadImages(e) {
 
     document.getElementById("image-upload-progress").style.opacity = 1
     uploadFile("uploadImages", _("imageUploadProgressLabel"),
-    _("imageUploadProgressPercentage"), _("imageUploadProgressBar"), _("imageFileID"))
+    _("imageUploadProgressPercentage"), _("imageUploadProgressBar"), 1)
 
     e.disabled = true
 }
 
-function uploadYouTube() {
-    document.getElementById("images-tab").disabled = true
-    document.getElementById("videos-tab").disabled = true
+function uploadYouTube(e) {
+    var youtubeRegex = new RegExp('^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/.+');
+    var yt_URL = $("#uploadYouTube").val()
+
+    if(youtubeRegex.test(yt_URL) === true)
+        _("images-tab").disabled = true
+        _("videos-tab").disabled = true
+
+        $("#yt-upload-progress").css('opacity', 1)
+
+        uploadYTVideo(yt_URL)
+
+    e.disabled = true
 }
 
 function _(el) {
@@ -72,23 +82,49 @@ function getCookie(name) {
     return r ? r[1] : undefined;
 }
 
-function uploadFile(form_id, label, percent, bar, fileID) {
+function uploadFile(form_id, label, percent, bar, type) {
   var file = _(form_id).files[0];
   var formdata = new FormData();
   formdata.append("file1", file);
   formdata.append("_xsrf", getCookie("_xsrf"))
+  formdata.append("type", type)
   var ajax = new XMLHttpRequest();
   ajax.upload.addEventListener("progress", function(e) { progressHandler(e, label, percent, bar) }, false);
-  ajax.addEventListener("load", function(e) { completeHandler(e, label, fileID) }, false);
+  ajax.addEventListener("load", function(e) { completeHandler(e, label) }, false);
   ajax.addEventListener("error", function(e) { errorHandler(e, label) }, false);
   ajax.addEventListener("abort", function(e) { abortHandler(e, label) }, false);
   ajax.open("POST", "/uploadfile");
   ajax.send(formdata);
 }
 
+function uploadYTVideo(yt_URL) {
+    var ws = new WebSocket("ws://localhost:8888/uploadyt");
+    ws.onopen = function() {
+       ws.send(yt_URL);
+    };
+    ws.onmessage = function (evt) {
+        $("#ytUploadProgressLabel > span").html("Dowloading Video");
+        var response = JSON.parse(evt.data)
+
+        if (response["progress"]) {
+            var percent = response["progress"];
+            $("#ytUploadProgressPercentage > span").html(percent + "%");
+            $("#ytUploadProgressBar").width(percent + "%");
+        } else if(response["fileID"]) {
+            _("fileID").value = response["fileID"]
+        }
+    };
+
+    ws.onclose = function() {
+        $("#ytUploadProgressLabel > span").html("Download Finished");
+        _("submit-task").disabled = false
+    }
+}
+
 function submitTask() {
   var formdata = new FormData();
-  formdata.append("fileID", _("videoFileID").value)
+
+  formdata.append("fileID", _("fileID").value)
   formdata.append("_xsrf", getCookie("_xsrf"))
   var ajax = new XMLHttpRequest();
       ajax.onreadystatechange = function(data) {
@@ -124,12 +160,12 @@ function progressHandler(event, label, percentBar, bar) {
   bar.style.width = percent + "%";
 }
 
-function completeHandler(event, label, fileID) {
+function completeHandler(event, label) {
     var status = ""
     if (event.target.status == 200) {
         _("submit-task").disabled = false
         status = "File Uploaded"
-        fileID.value = event.target.responseText
+        _("fileID").value = event.target.responseText
     } else {
         status = "Not Uploaded"
     }
@@ -163,11 +199,14 @@ function resetUploadForm() {
         input_elem.dispatchEvent(event);
     }
 
-    document.getElementById("uploadVideoFile").blur()
-    document.getElementById("uploadImages").blur()
+    $("#uploadVideoFile").blur()
+    $("#uploadImages").blur()
+    $("#uploadYouTube").blur()
 
-    document.getElementById("video-upload-progress").style.opacity = 0
-    document.getElementById("image-upload-progress").style.opacity = 0
+    $("#video-upload-progress").css('opacity', 0)
+    $("#image-upload-progress").css('opacity', 0)
+    $("#yt-upload-progress").css('opacity', 0)
 
-    document.getElementById("submit-task").disabled = true;
+
+    _("submit-task").disabled = true;
 }
