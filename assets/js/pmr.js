@@ -144,9 +144,7 @@ function submitTask() {
             $('#add-task-modal').modal('hide');
 
             var task = JSON.parse(data["currentTarget"]["response"])
-            console.log(task["image_url"])
-            addTaskToList(task["image_url"], task["filename"], task["status"], task["current_stage"], task["completion"])
-
+            listTasks() // Show the last page
            }
         };
     ajax.open("POST", "/addtask", true);

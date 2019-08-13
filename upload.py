@@ -78,7 +78,9 @@ class YouTubeHandler(tornado.websocket.WebSocketHandler, SessionMixin):
 			progress = str(int((1 - bytes_remaining / stream.filesize) * 100))
 			self.write_message({"progress": progress})
 
-		yt = YouTube(str(message), on_progress_callback=progress_function)
+		yt_url = str(message)
+
+		yt = YouTube(yt_url, on_progress_callback=progress_function)
 		resolutions = ["480p", "360p", "240p", "144p"]
 		video = None
 
@@ -98,7 +100,7 @@ class YouTubeHandler(tornado.websocket.WebSocketHandler, SessionMixin):
 			user_id = int(self.get_secure_cookie("user_id"))
 
 			with self.make_session() as session:
-				file = File(user_id, 2, filename)
+				file = File(user_id, 2, filename, yt_url)
 				session.add(file)
 				session.commit()
 

@@ -38,11 +38,13 @@ class File(DeclarativeBase):
     user_id = Column(BigInteger, unique=False)
     type = Column(BigInteger, unique=False)
     filename = Column(String(255), unique=False)
+    extra_info = Column(String(1024), unique=False)
 
-    def __init__(self, user_id, file_type, filename):
+    def __init__(self, user_id, file_type, filename, extra_info = None):
         self.user_id = user_id
         self.type = file_type
         self.filename = filename
+        self.extra_info = extra_info
 
 class Task(DeclarativeBase):
     __tablename__ = 'tasks'

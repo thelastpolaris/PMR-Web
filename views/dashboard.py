@@ -41,6 +41,7 @@ class DashboardHandler(BaseHandler):
 
 			if mode == "list":
 				tasks = await as_future(session.query(Task).filter(Task.user_id == user_id).all)
+				tasks.reverse() # make new tasks appear earlier
 				num_all_tasks = len(tasks)
 				json_tasks = []
 
@@ -49,6 +50,7 @@ class DashboardHandler(BaseHandler):
 
 				if start_i is not None and amount:
 					tasks = tasks[start_i:(start_i + amount)]
+
 
 				for task in tasks:
 					file = await as_future(session.query(File).filter(File.id == task.file_id).first)
