@@ -1,13 +1,11 @@
-from tornado_sqlalchemy import SessionMixin, as_future
+from tornado_sqlalchemy import as_future
 import tornado.web
 import os
 import av
 import scipy.misc
 
 from pipelines import createPipeline
-from models import TaskDescription, Task, File
-import datetime
-import pytube
+from models import Task, File
 
 class TaskManager():
 	__current_task_id = None
@@ -37,6 +35,8 @@ class TaskManager():
 		for i, frame in enumerate(decoder):
 			filename = "img/tasks/{}.png".format(self.__current_task_id)
 			scipy.misc.toimage(frame.to_rgb().to_ndarray(), cmin=0.0, cmax=...).save(os.path.join("assets", filename))
+
+			container.close() # Very important
 			return filename
 
 	def add_task_description(self, task, path_to_video):

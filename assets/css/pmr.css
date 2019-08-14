@@ -4,7 +4,7 @@ table {
 
 table thead,
 table tbody {
-  display: table;
+  display: table-header-group;
   width: 100%;
 }
 

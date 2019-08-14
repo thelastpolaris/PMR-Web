@@ -10,7 +10,7 @@ import os
 import asyncio
 from tornado.platform.asyncio import AnyThreadEventLoopPolicy
 
-factory = make_session_factory("mysql://ccextractor:redwood32@localhost:3306/rekognition?charset=utf8mb4")
+factory = make_session_factory("mysql://ccextractor:redwood32@localhost:3306/rekognition?charset=utf8mb4", pool_size = 1)
 
 absFilePath = os.path.abspath(__file__)
 fileDir = os.path.dirname(os.path.abspath(__file__))

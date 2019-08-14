@@ -51,7 +51,6 @@ class DashboardHandler(BaseHandler):
 				if start_i is not None and amount:
 					tasks = tasks[start_i:(start_i + amount)]
 
-
 				for task in tasks:
 					file = await as_future(session.query(File).filter(File.id == task.file_id).first)
 					json_task = dict()

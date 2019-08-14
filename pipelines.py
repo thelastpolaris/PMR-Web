@@ -1,5 +1,5 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 import sys
 sys.path.append(os.path.abspath('../poors_man_rekognition'))
@@ -53,7 +53,8 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 
 	# Face Detector
 	if useYolo:
-		face_detector = YOLOv3FaceDetector()
+		# face_detector = YOLOv3FaceDetector()
+		face_detector = MobileNetsSSDFaceDetector()
 	else:
 		face_detector = MobileNetsSSDFaceDetector()
 
@@ -77,11 +78,17 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 	# Benchmarks stuff
 	out_name = "{}_{}_{}".format(filename_wo_ext, face_detector, face_recognizer)
 	try:
+		# JSON_data = await ioloop.run_in_executor(None, pipeline.run, {datahandler: {"input_path" : input_path, "preprocessors": [resizer]},
+		# 		  simframes: {"sim_threshold": 0.99, "max_jobs": 10},
+		# 		  face_detector: {"min_score": 0.6},
+		# 		  face_recognizer: {"backend":"SciKit", "n_ngbr": 10},
+		# 		  pipeline: {"out_name": "output/" + out_name}}, True, progress_callback)
+
 		JSON_data = pipeline.run({datahandler: {"input_path" : input_path, "preprocessors": [resizer]},
 				  simframes: {"sim_threshold": 0.99, "max_jobs": 10},
 				  face_detector: {"min_score": 0.6},
 				  face_recognizer: {"backend":"SciKit", "n_ngbr": 10},
-				  pipeline: {"out_name": "output/" + out_name}}, benchmark=True, progress_callback = progress_callback)
+				  pipeline: {"out_name": "output/" + out_name}}, benchmark=True, progress_callback=progress_callback)
 
 		return JSON_data
 	except Exception as e:
