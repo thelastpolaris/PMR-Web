@@ -9,8 +9,6 @@ import datetime
 from pytube import YouTube
 import zipfile
 
-__UPLOADS__ = "uploads/"
-
 class FileHandler(BaseHandler):
 	@tornado.web.authenticated
 	async def post(self):
@@ -18,15 +16,15 @@ class FileHandler(BaseHandler):
 		mode = list(self.request.files.keys())[0]
 		file_type = int(self.get_body_argument("type", default=None, strip=False))
 
-		if not os.path.exists(__UPLOADS__):
-			os.mkdir(__UPLOADS__)
+		if not os.path.exists(self.application.uploads):
+			os.mkdir(self.application.uploads)
 
 		fileinfo = self.request.files[mode][0]
 		fname = fileinfo['filename']
 		_, fext = os.path.splitext(fname)
 		fname = fname.replace(" ", "")
 
-		folder = __UPLOADS__
+		folder = self.application.uploads
 
 		if file_type == 1:
 			now = datetime.datetime.now()
@@ -35,6 +33,7 @@ class FileHandler(BaseHandler):
 			folder = os.path.join(folder, new_dir)
 			if not os.path.isdir(folder):
 				os.mkdir(folder)
+
 		elif file_type == 2:
 			print(file_type)
 
@@ -50,7 +49,9 @@ class FileHandler(BaseHandler):
 				fh.write(fileinfo['body'])
 
 			if file_type == 1:
-				filename = folder
+				filename = new_dir
+			else:
+				filename = fname
 
 			with self.make_session() as session:
 				file = File(user_id, file_type, filename)
@@ -71,8 +72,8 @@ class YouTubeHandler(tornado.websocket.WebSocketHandler, SessionMixin):
 			self.close()
 
 	async def on_message(self, message):
-		if not os.path.exists(__UPLOADS__):
-			os.mkdir(__UPLOADS__)
+		if not os.path.exists(self.application.uploads):
+			os.mkdir(self.application.uploads)
 
 		def progress_function(stream, chunk, file_handle, bytes_remaining):
 			progress = str(int((1 - bytes_remaining / stream.filesize) * 100))
@@ -92,11 +93,11 @@ class YouTubeHandler(tornado.websocket.WebSocketHandler, SessionMixin):
 		if video:
 			await tornado.ioloop.IOLoop.current().run_in_executor(
 				None,
-				video.download, __UPLOADS__,
+				video.download, self.application.uploads,
 			)
 			await self.write_message("finish")
 
-			filename = os.path.join(__UPLOADS__, video.default_filename)
+			filename = os.path.join(self.application.uploads, video.default_filename)
 			user_id = int(self.get_secure_cookie("user_id"))
 
 			with self.make_session() as session:

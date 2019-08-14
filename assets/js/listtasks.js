@@ -8,7 +8,7 @@ function taskRow(task_id, image_url, filename, status, current_stage, completion
                   <img alt="Image placeholder" src=${image_url}>
                 </div>
                 <div class="media-body">
-                  <span class="mb-0 text-sm">${filename}</span>
+                  <a href="/task?id=${task_id}"><span class="mb-0 text-sm">${filename}</span></a>
                 </div>
               </div>
             </th>

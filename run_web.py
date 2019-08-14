@@ -1,7 +1,7 @@
 import tornado.ioloop
 import tornado.web
 from views.auth import AuthCreateHandler, AuthLoginHandler, GoogleOAuth2LoginHandler, GithubLoginHandler
-from views.dashboard import DashboardHandler, UserPanelHandler, TaskHandler
+from views.dashboard import DashboardHandler, UserPanelHandler, TaskHandler, TaskPageHandler
 from upload import FileHandler, YouTubeHandler
 from api import APIHandler, APIUploadFileHandler, APIAddTaskHandler, APITaskHandler
 from tornado_sqlalchemy import make_session_factory
@@ -25,6 +25,7 @@ def make_app():
 		(r"/login_google", GoogleOAuth2LoginHandler),
 		(r"/login_github", GithubLoginHandler),
 		(r"/addtask", TaskHandler),
+		(r"/task", TaskPageHandler),
 		(r"/uploadfile", FileHandler),
 		(r"/uploadyt", YouTubeHandler),
 		# API
@@ -58,6 +59,7 @@ def make_app():
 	}
 	asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())
 	app = tornado.web.Application(urls, **settings)
+	app.uploads = "assets/uploads/"
 
 	return app
 

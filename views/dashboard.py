@@ -56,7 +56,7 @@ class DashboardHandler(BaseHandler):
 					json_task = dict()
 					json_task["task_id"] = task.id
 					json_task["image_url"] = self.static_url(task.image)
-					json_task["filename"] = file.filename.split("/")[-1]
+					json_task["filename"] = file.filename
 					json_task["status"] = task.status
 					json_task["current_stage"] = task.current_stage
 					json_task["completion"] = task.completion
@@ -147,3 +147,30 @@ class TaskHandler(BaseHandler):
 
 			self.finish(json_task)
 			await TaskManager().run_task(task_id, session)
+
+class TaskPageHandler(BaseHandler):
+	@tornado.web.authenticated
+	async def get(self):
+		user_id = self.get_secure_cookie("user_id")
+		task_id = self.get_argument('id', None)
+
+		with self.make_session() as session:
+			user = await as_future(session.query(User).filter(User.id == user_id).first)
+
+			processed_files = await as_future(session.query(Task).filter(Task.user_id == user_id).filter(Task.status == 2).count)
+			inprocess_files = await as_future(session.query(Task).filter(Task.user_id == user_id).filter(Task.status != 2).count)
+			processing_globally = await as_future(session.query(Task).filter(Task.status != 2).count)
+
+			task = await as_future(session.query(Task).filter(Task.id == task_id).first)
+			file = await as_future(session.query(File).filter(File.id == task.file_id).first)
+
+			args = {
+				"title": "Poor's Man Rekognition - Dashboard",
+				"user": user,
+				"processed_files": processed_files,
+				"inprocess_files": inprocess_files,
+				"processing_globally": processing_globally,
+				"video_URL": self.static_url(file.filename)
+			}
+
+			self.render("task.html", **args)

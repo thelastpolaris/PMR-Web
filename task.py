@@ -79,7 +79,7 @@ class TaskManager():
 
 		JSON_data = await tornado.ioloop.IOLoop.current().run_in_executor(
 			None,
-			createPipeline, file.filename, self.update_task, True, True,
+			createPipeline, os.path.join(__UPLOADS__, file.filename), self.update_task, True, True,
 		)
 		if JSON_data:
 			task.status = 2
