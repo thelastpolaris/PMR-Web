@@ -1,6 +1,8 @@
 from tornado_sqlalchemy import as_future
 from basehandler import BaseHandler
 import tornado.web
+from settings import __UPLOADS__
+import os
 
 from task import TaskManager
 from models import User, Task, File
@@ -128,25 +130,39 @@ class UserPanelHandler(BaseHandler):
 class TaskHandler(BaseHandler):
 	@tornado.web.authenticated
 	async def post(self):
-		user_id = self.get_secure_cookie("user_id")
+		user_id = int(self.get_secure_cookie("user_id"))
 		file_id = self.get_body_argument('fileID', default=None, strip=False)
 
 		with self.make_session() as session:
-			task_id = await TaskManager().add_task(user_id, file_id, session)
-			self.set_status(200)
+			mode = self.get_argument("mode", None)
 
-			task = await as_future(session.query(Task).filter(Task.id == task_id).first)
-			file = await as_future(session.query(File).filter(File.id == task.file_id).first)
+			if mode == "add_task":
+				task_id = await TaskManager().add_task(user_id, file_id, session)
+				self.set_status(200)
 
-			json_task = {"image_url": self.static_url(task.image),
-						 "filename": file.filename.split("/")[-1],
-						 "status": task.status,
-						 "current_stage": task.current_stage,
-						 "completion": task.completion
-			}
+				task = await as_future(session.query(Task).filter(Task.id == task_id).first)
+				file = await as_future(session.query(File).filter(File.id == task.file_id).first)
 
-			self.finish(json_task)
-			await TaskManager().run_task(task_id, session)
+				json_task = {"image_url": self.static_url(task.image),
+							 "filename": file.filename.split("/")[-1],
+							 "status": task.status,
+							 "current_stage": task.current_stage,
+							 "completion": task.completion
+				}
+
+				self.finish(json_task)
+				await TaskManager().run_task(task_id, session)
+			elif mode == "rerun_task":
+				task_id = self.get_argument("taskID", None)
+				if task_id is not None:
+					task = await as_future(session.query(Task).filter(Task.id == task_id).first)
+					if task:
+						if user_id == task.user_id:
+							self.set_status(200)
+							self.finish()
+
+							await TaskManager().run_task(task_id, session)
+
 
 class TaskPageHandler(BaseHandler):
 	@tornado.web.authenticated
@@ -170,7 +186,8 @@ class TaskPageHandler(BaseHandler):
 				"processed_files": processed_files,
 				"inprocess_files": inprocess_files,
 				"processing_globally": processing_globally,
-				"video_URL": self.static_url(file.filename)
+				"video_URL": self.static_url(os.path.join(__UPLOADS__.replace("assets/", ""), file.filename)),
+				"json_data": task.json_data
 			}
 
 			self.render("task.html", **args)

@@ -126,6 +126,8 @@ function submitTask() {
 
   formdata.append("fileID", _("fileID").value)
   formdata.append("_xsrf", getCookie("_xsrf"))
+  formdata.append("mode", "add_task")
+
   var ajax = new XMLHttpRequest();
       ajax.onreadystatechange = function(data) {
         if (this.readyState == 4 && this.status == 200) {
@@ -144,6 +146,35 @@ function submitTask() {
             $('#add-task-modal').modal('hide');
 
             var task = JSON.parse(data["currentTarget"]["response"])
+            listTasks() // Show the last page
+           }
+        };
+    ajax.open("POST", "/addtask", true);
+    ajax.send(formdata);
+}
+
+function rerunTask(taskID) {
+  var formdata = new FormData();
+
+  formdata.append("taskID", taskID)
+  formdata.append("_xsrf", getCookie("_xsrf"))
+  formdata.append("mode", "rerun_task")
+
+  var ajax = new XMLHttpRequest();
+      ajax.onreadystatechange = function(data) {
+        if (this.readyState == 4 && this.status == 200) {
+            $.notify({
+                    icon: 'ni ni-check-bold',
+                    message: "<b>Success!</b> Task is staged for a rerun"
+                },
+                {
+                    type: "success",
+                    allow_dismiss: true,
+                    placement: {
+                        align: "center"
+                    },
+                });
+
             listTasks() // Show the last page
            }
         };

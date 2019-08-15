@@ -3,6 +3,7 @@ import tornado.web
 import tornado.websocket
 import os, io
 from tornado_sqlalchemy import SessionMixin
+from settings import  __UPLOADS__
 
 from models import File
 import datetime
@@ -16,15 +17,15 @@ class FileHandler(BaseHandler):
 		mode = list(self.request.files.keys())[0]
 		file_type = int(self.get_body_argument("type", default=None, strip=False))
 
-		if not os.path.exists(self.application.uploads):
-			os.mkdir(self.application.uploads)
+		if not os.path.exists(__UPLOADS__):
+			os.mkdir(__UPLOADS__)
 
 		fileinfo = self.request.files[mode][0]
 		fname = fileinfo['filename']
 		_, fext = os.path.splitext(fname)
 		fname = fname.replace(" ", "")
 
-		folder = self.application.uploads
+		folder = __UPLOADS__
 
 		if file_type == 1:
 			now = datetime.datetime.now()
@@ -72,8 +73,8 @@ class YouTubeHandler(tornado.websocket.WebSocketHandler, SessionMixin):
 			self.close()
 
 	async def on_message(self, message):
-		if not os.path.exists(self.application.uploads):
-			os.mkdir(self.application.uploads)
+		if not os.path.exists(__UPLOADS__):
+			os.mkdir(__UPLOADS__)
 
 		def progress_function(stream, chunk, file_handle, bytes_remaining):
 			progress = str(int((1 - bytes_remaining / stream.filesize) * 100))
@@ -93,11 +94,11 @@ class YouTubeHandler(tornado.websocket.WebSocketHandler, SessionMixin):
 		if video:
 			await tornado.ioloop.IOLoop.current().run_in_executor(
 				None,
-				video.download, self.application.uploads,
+				video.download, __UPLOADS__,
 			)
 			await self.write_message("finish")
 
-			filename = os.path.join(self.application.uploads, video.default_filename)
+			filename = os.path.join(__UPLOADS__, video.default_filename)
 			user_id = int(self.get_secure_cookie("user_id"))
 
 			with self.make_session() as session:

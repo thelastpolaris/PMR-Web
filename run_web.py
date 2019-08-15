@@ -59,7 +59,6 @@ def make_app():
 	}
 	asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())
 	app = tornado.web.Application(urls, **settings)
-	app.uploads = "assets/uploads/"
 
 	return app
 

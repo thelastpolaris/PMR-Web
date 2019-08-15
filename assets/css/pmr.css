@@ -33,3 +33,16 @@ table.loading tbody:after {
     background-size: 50px 50px;
     content: "";
 }
+
+#videoContainer {
+  position: relative;
+}
+
+#overlay {
+  width: 100px;
+  height: 50px;
+  border: 1px solid red ;
+  position: absolute;
+  left: 50px;
+  top: 50px;
+}

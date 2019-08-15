@@ -3,6 +3,7 @@ import tornado.web
 import os
 import av
 import scipy.misc
+from settings import __UPLOADS__
 
 from pipelines import createPipeline
 from models import Task, File
@@ -63,7 +64,7 @@ class TaskManager():
 		self.__current_task_id = task.id
 		self.__current_session = session
 
-		task.image = self.get_random_frame(file.filename)
+		task.image = self.get_random_frame(os.path.join(__UPLOADS__, file.filename))
 
 		session.add(task)
 		session.commit()
@@ -73,6 +74,9 @@ class TaskManager():
 	async def run_task(self, task_id, session):
 		task = await as_future(session.query(Task).filter(Task.id == task_id).first)
 		file = await as_future(session.query(File).filter(File.id == task.file_id).first)
+
+		task.status = 1
+		task.completion = 0
 
 		self.__current_task_id = task.id
 		self.__current_session = session
