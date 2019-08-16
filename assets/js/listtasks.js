@@ -3,14 +3,14 @@
 function taskRow(task_id, image_url, filename, status, current_stage, completion){
    return `<tr>
             <th scope="row">
-              <div class="media align-items-center">
+              <a href="/task?id=${task_id}"><div class="media align-items-center">
                 <div class="avatar rounded-circle mr-3">
                   <img alt="Image placeholder" src=${image_url}>
                 </div>
                 <div class="media-body">
-                  <a href="/task?id=${task_id}"><span class="mb-0 text-sm">${filename}</span></a>
+                  <span class="mb-0 text-sm">${filename}</span>
                 </div>
-              </div>
+              </div></a>
             </th>
             <td>
               <span class="badge badge-dot mr-4">

@@ -53,8 +53,7 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 
 	# Face Detector
 	if useYolo:
-		# face_detector = YOLOv3FaceDetector()
-		face_detector = MobileNetsSSDFaceDetector()
+		face_detector = YOLOv3FaceDetector()
 	else:
 		face_detector = MobileNetsSSDFaceDetector()
 
@@ -70,7 +69,7 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 						 simframes,
 						 face_detector,
 						 face_recognizer,
-						 # output_hand
+						 output_hand
 						 ])
 
 	print(pipeline)
@@ -88,7 +87,8 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 				  simframes: {"sim_threshold": 0.99, "max_jobs": 10},
 				  face_detector: {"min_score": 0.6},
 				  face_recognizer: {"backend":"SciKit", "n_ngbr": 10},
-				  pipeline: {"out_name": "output/" + out_name}}, benchmark=True, progress_callback=progress_callback)
+				  output_hand: {"output_name": os.path.join("output/", out_name)},
+				  pipeline: {"out_name": os.path.join("output/", out_name)}}, benchmark=True, progress_callback=progress_callback)
 
 		return JSON_data
 	except Exception as e:

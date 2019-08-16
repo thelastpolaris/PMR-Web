@@ -2,7 +2,7 @@ from tornado_sqlalchemy import as_future
 from basehandler import BaseHandler
 import tornado.web
 from settings import __UPLOADS__
-import os
+import os, json
 
 from task import TaskManager
 from models import User, Task, File
@@ -180,6 +180,16 @@ class TaskPageHandler(BaseHandler):
 			task = await as_future(session.query(Task).filter(Task.id == task_id).first)
 			file = await as_future(session.query(File).filter(File.id == task.file_id).first)
 
+			time_base = task.json_data[-1]["time_base"]
+			json_frames = []
+			last_second = -1
+
+			for i in range(len(task.json_data) - 1):
+				frame_json = task.json_data[i]
+				if last_second < int(frame_json["pts"]/time_base):
+					last_second += 1
+					json_frames.append({"second": last_second, "data": frame_json["faces"]})
+
 			args = {
 				"title": "Poor's Man Rekognition - Dashboard",
 				"user": user,
@@ -187,7 +197,7 @@ class TaskPageHandler(BaseHandler):
 				"inprocess_files": inprocess_files,
 				"processing_globally": processing_globally,
 				"video_URL": self.static_url(os.path.join(__UPLOADS__.replace("assets/", ""), file.filename)),
-				"json_data": task.json_data
+				"json_data": json_frames
 			}
 
 			self.render("task.html", **args)

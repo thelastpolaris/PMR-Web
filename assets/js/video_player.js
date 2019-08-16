@@ -147,10 +147,39 @@
 //    });
 //}
 //
-function video_player(json_data) {
+
+var current_boxes = []
+
+function addBox(width, height, color) {
+    var box = $(`<div style='width: ${width}px; height: ${height}px; border: 1px solid ${color}; position: absolute;'></div>`).appendTo('#videoContainer');
+    current_boxes.push(box)
+}
+
+function video_player(json_frames) {
     currentTime = $("#video-player")[0].currentTime
+    frame_data = json_frames[Math.floor(currentTime)]["data"]
+
+    var c1 = document.getElementById("video-canvas");
+    var c1_context = c1.getContext("2d");
+    c1_context.fillStyle = "#f00";
+    c1_context.clearRect(0, 0, c1.width, c1.height);
+    c1_context.strokeStyle = "red";
+    var width = $("#video-player").width()
+    var height = $("#video-player").height()
+
+    for( var i=0; i< frame_data.length; i++ ) {
+        var box = frame_data[i]["bounding_box"]
+        var bottom = Math.floor(box["bottom"]*c1.height)
+        var top = Math.floor(box["top"]*c1.height)
+        var left = Math.floor(box["left"]*c1.width)
+        var right = Math.floor(box["right"]*c1.width)
+        console.log(width)
+
+        c1_context.strokeRect(left, top, right - left, bottom - top);
+        console.log(left, top, top - bottom, left - right)
+    }
+
+
+//    addBox(100, 50, "red" )
 
 }
-//
-//listTasks()
-
