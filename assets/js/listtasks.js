@@ -162,7 +162,7 @@ function listTasks(page = 0, tasks_per_page = 5) {
       processData: false,
       contentType: false,
       type: 'POST',
-      success: function(data){
+      success: function(data) {
         for (var d of data["tasks"]) {
             addTaskToList(d["task_id"], d["image_url"], d["filename"], d["status"], d["current_stage"], d["completion"])
         }

@@ -38,13 +38,27 @@ table.loading tbody:after {
   position: relative;
 }
 
+#videoPlayer {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    position: relative;
+}
 
-#video-canvas {
+#videoControls {
+margin-left: auto;
+    margin-right: auto;
+    display: block;
+    position: absolute;
+    bottom: 0px;
+}
+
+#videoCanvas {
     pointer-events:none;
-    height: 99%;
-    width: 100%;
     position: absolute;
     top: 0px;
-    left: 0px;
     border:solid 1px #000000;
+    z-index: 2147483647;
 }
+
+

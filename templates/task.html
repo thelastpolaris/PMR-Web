@@ -77,11 +77,19 @@
               </div>
             </div>
             <div class="card-body">
-              <div id="videoContainer">
-              <video id="video-player" width="100%" height="100%" controls ontimeupdate='video_player({{ json_data }})'>
+              <div id="videoContainer" class="align-items-center">
+              <video id="videoPlayer" controls ontimeupdate='video_player({{ json_data }})'>
                 <source src={{ video_URL }} type="video/mp4">
               </video>
-              <canvas id="video-canvas"></canvas>
+              <div id="videoControls">
+                <div class="control play-pause"><a href="#"><i class="icon-play"></i></a></div>
+<!--                <button type="button" id="play-pause" class="btn btn-primary">Play</button>-->
+                <input type="range" id="seek-bar" value="0" class="input-slider">
+                <button type="button" id="mute" class="btn btn-primary">Mute</button>
+                <input type="range" id="volume-bar" min="0" max="1" step="0.1" value="1" class="input-slider">
+                <button type="button" id="full-screen" class="btn btn-primary">Full-Screen</button>
+              </div>
+              <canvas id="videoCanvas"></canvas>
               </div>
             </div>
           </div>

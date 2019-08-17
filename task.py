@@ -92,6 +92,7 @@ class TaskManager():
 			self.add_task_description(task, file.filename)
 		else:
 			task.status = 3
+			task.completion = 0
 
 		session.add(task)
 		session.commit()

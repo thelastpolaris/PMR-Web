@@ -129,26 +129,26 @@ function submitTask() {
   formdata.append("mode", "add_task")
 
   var ajax = new XMLHttpRequest();
-      ajax.onreadystatechange = function(data) {
-        if (this.readyState == 4 && this.status == 200) {
-            $.notify({
-                    icon: 'ni ni-check-bold',
-                    message: "<b>Success!</b> New Task is added to the queue"
+  ajax.onreadystatechange = function(data) {
+    if (this.readyState == 4 && this.status == 200) {
+        $.notify({
+                icon: 'ni ni-check-bold',
+                message: "<b>Success!</b> New Task is added to the queue"
+            },
+            {
+                type: "success",
+                allow_dismiss: true,
+                placement: {
+                    align: "center"
                 },
-                {
-                    type: "success",
-                    allow_dismiss: true,
-                    placement: {
-                        align: "center"
-                    },
-                });
+            });
 
-            $('#add-task-modal').modal('hide');
+        $('#add-task-modal').modal('hide');
 
-            var task = JSON.parse(data["currentTarget"]["response"])
-            listTasks() // Show the last page
-           }
-        };
+        var task = JSON.parse(data["currentTarget"]["response"])
+        setTimeout(listTasks(), 100) // Show the last page
+       }
+    };
     ajax.open("POST", "/addtask", true);
     ajax.send(formdata);
 }
@@ -161,23 +161,23 @@ function rerunTask(taskID) {
   formdata.append("mode", "rerun_task")
 
   var ajax = new XMLHttpRequest();
-      ajax.onreadystatechange = function(data) {
-        if (this.readyState == 4 && this.status == 200) {
-            $.notify({
-                    icon: 'ni ni-check-bold',
-                    message: "<b>Success!</b> Task is staged for a rerun"
+  ajax.onreadystatechange = function(data) {
+    if (this.readyState == 4 && this.status == 200) {
+        $.notify({
+                icon: 'ni ni-check-bold',
+                message: "<b>Success!</b> Task is staged for a rerun"
+            },
+            {
+                type: "success",
+                allow_dismiss: true,
+                placement: {
+                    align: "center"
                 },
-                {
-                    type: "success",
-                    allow_dismiss: true,
-                    placement: {
-                        align: "center"
-                    },
-                });
+            });
 
-            listTasks() // Show the last page
-           }
-        };
+        setTimeout(listTasks(), 1000) // Show the last page
+       }
+    };
     ajax.open("POST", "/addtask", true);
     ajax.send(formdata);
 }

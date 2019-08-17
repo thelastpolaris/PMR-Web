@@ -87,7 +87,7 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 				  simframes: {"sim_threshold": 0.99, "max_jobs": 10},
 				  face_detector: {"min_score": 0.6},
 				  face_recognizer: {"backend":"SciKit", "n_ngbr": 10},
-				  output_hand: {"output_name": os.path.join("output/", out_name)},
+				  output_hand: {"output_name": out_name},
 				  pipeline: {"out_name": os.path.join("output/", out_name)}}, benchmark=True, progress_callback=progress_callback)
 
 		return JSON_data
