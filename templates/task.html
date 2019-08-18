@@ -71,26 +71,63 @@
             <div class="card-header bg-transparent">
               <div class="row align-items-center">
                 <div class="col">
-                  <h6 class="text-uppercase text-light ls-1 mb-1">Overview</h6>
-                  <h2 class="text-white mb-0">Sales value</h2>
+                  <h6 class="text-uppercase text-light ls-1 mb-1">{{ type }}</h6>
+                  <h2 class="text-white mb-0">{{ name }}</h2>
                 </div>
               </div>
             </div>
             <div class="card-body">
-              <div id="videoContainer" class="align-items-center">
-              <video id="videoPlayer" controls ontimeupdate='video_player({{ json_data }})'>
-                <source src={{ video_URL }} type="video/mp4">
-              </video>
-              <div id="videoControls">
-                <div class="control play-pause"><a href="#"><i class="icon-play"></i></a></div>
-<!--                <button type="button" id="play-pause" class="btn btn-primary">Play</button>-->
-                <input type="range" id="seek-bar" value="0" class="input-slider">
-                <button type="button" id="mute" class="btn btn-primary">Mute</button>
-                <input type="range" id="volume-bar" min="0" max="1" step="0.1" value="1" class="input-slider">
-                <button type="button" id="full-screen" class="btn btn-primary">Full-Screen</button>
-              </div>
-              <canvas id="videoCanvas"></canvas>
-              </div>
+              <!-- Start -->
+              <div class="videoContainer">
+
+	<video id="videoPlayer" controls preload="auto" poster="{{ image_URL }}" width="600" height="350" ontimeupdate='video_player({{ json_data }})'>
+	  <source src="{{ video_URL }}" type="video/mp4" />
+	  <p>Your browser does not support the video tag.</p>
+	</video>
+	<div class="control">
+
+		<div class="topControl">
+			<div class="progress-player">
+				<span class="bufferBar"></span>
+				<span class="timeBar"></span>
+			</div>
+			<div class="time">
+				<span class="current"></span> /
+				<span class="duration"></span>
+			</div>
+		</div>
+
+		<div class="btmControl">
+			<div class="btnPlay btnP" title="Play/Pause video"></div>
+			<div class="btnStop btnP" title="Stop video"></div>
+			<div class="btnx1 btnP text selected" title="Normal speed">x1</div>
+			<div class="btnx3 btnP text" title="Fast forward x3">x3</div>
+			<div class="btnFS btnP" title="Switch to full screen"></div>
+			<div class="btnLight lighton btnP" title="Turn on/off light"></div>
+			<div class="volume" title="Set volume">
+				<span class="volumeBar"></span>
+			</div>
+			<div class="sound sound2 btnP" title="Mute/Unmute sound"></div>
+		</div>
+
+	</div>
+    <canvas id="videoCanvas"></canvas>
+	<div class="loading"></div>
+</div>
+              <!-- End -->
+<!--              <div id="videoContainer">-->
+<!--              <video id="videoPlayer" controls ontimeupdate='video_player({{ json_data }})'>-->
+<!--                <source src={{ video_URL }} type="video/mp4">-->
+<!--              </video>-->
+<!--              <div id="videoControls" class="row">-->
+<!--                <button type="button" id="play-pause" class="btn btn-primary col"><i class="icon-play"></i></button>-->
+<!--                <div class="progress-player col"></div>-->
+<!--                <button type="button" id="mute" class="btn btn-primary col"><i class="icon-volume-up"></i></button>-->
+<!--                <input type="range" id="volume-bar" min="0" max="1" step="0.1" value="1" class="input-slider col">-->
+<!--                <button type="button" id="full-screen" class="btn btn-primary col"><i class="icon-fullscreen"></i></button>-->
+<!--              </div>-->
+
+<!--	</div>-->
             </div>
           </div>
         </div>

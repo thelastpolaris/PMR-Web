@@ -191,13 +191,16 @@ class TaskPageHandler(BaseHandler):
 					json_frames.append({"second": last_second, "data": frame_json["faces"]})
 
 			args = {
-				"title": "Poor's Man Rekognition - Dashboard",
+				"title": "Poor's Man Rekognition - Task Description",
 				"user": user,
 				"processed_files": processed_files,
 				"inprocess_files": inprocess_files,
 				"processing_globally": processing_globally,
 				"video_URL": self.static_url(os.path.join(__UPLOADS__.replace("assets/", ""), file.filename)),
-				"json_data": json_frames
+				"image_URL": self.static_url(task.image),
+				"json_data": json_frames,
+				"type": "Video" if file.type == 0 or file.type == 2 else "Image",
+				"name": file.filename
 			}
 
 			self.render("task.html", **args)
