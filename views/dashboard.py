@@ -182,13 +182,12 @@ class TaskPageHandler(BaseHandler):
 
 			time_base = task.json_data[-1]["time_base"]
 			json_frames = []
-			last_second = -1
 
 			for i in range(len(task.json_data) - 1):
 				frame_json = task.json_data[i]
-				if last_second < int(frame_json["pts"]/time_base):
-					last_second += 1
-					json_frames.append({"second": last_second, "data": frame_json["faces"]})
+				# if last_second < int(frame_json["pts"]/time_base):
+				# 	last_second += 1
+				json_frames.append({"second": frame_json["pts"]/time_base, "data": frame_json["faces"]})
 
 			args = {
 				"title": "Poor's Man Rekognition - Task Description",

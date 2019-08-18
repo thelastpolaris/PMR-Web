@@ -1,14 +1,20 @@
 function update_canvas() {
     var c1 = $("#videoCanvas");
     c1.css("left", "0px")
-    c1.css("width", $("#videoPlayer").outerWidth())
-    c1.css("height", $("#videoPlayer").outerHeight())
-    c1.css("left", ($("#videoPlayer").outerWidth(true) - $("#videoPlayer").outerWidth())/2 )
+
+    var aspect_ratio = $("#videoPlayer")[0].videoWidth/$("#videoPlayer")[0].videoHeight
+    var height = $("#videoPlayer").outerHeight()
+    var width = height*aspect_ratio
+
+    c1.css("width", width)
+    c1.css("height", height)
+    c1.css("left", ($("#videoPlayer").outerWidth() - width )/2)
+    console.log("s", $("#videoPlayer").outerWidth())
 }
 
-//$("#videoPlayer")[0].onloadedmetadata = function () {
-//    update_canvas()
-//}
+$("#videoPlayer")[0].onloadedmetadata = function () {
+    update_canvas()
+}
 
 window.onresize = function () {
     update_canvas()
@@ -16,11 +22,28 @@ window.onresize = function () {
 
 var button = document.getElementById('toggle')
 
-function video_player(json_frames) {
-    console.log($("#videoPlayer").offset().left)
+var json_data = null
 
+function set_json_data(_json_data) {
+    if (json_data == null) json_data = _json_data
+}
+
+setInterval(function () {
+    video_player(json_data); // will get you a lot more updates.
+}, 30);
+
+function video_player(json_frames) {
+    frame_data = null
     currentTime = $("#videoPlayer")[0].currentTime
-    frame_data = json_frames[Math.floor(currentTime)]["data"]
+    for( var i=0; i< json_frames.length; i++ ) {
+        if (currentTime < json_frames[i]["second"]) {
+            if(i == 0) return
+
+            frame_data = json_frames[i]["data"]
+            break
+        }
+    }
+    if(frame_data == null) return
 
     var c1 = document.getElementById("videoCanvas");
     var c1_context = c1.getContext("2d");
@@ -41,114 +64,6 @@ function video_player(json_frames) {
         c1_context.strokeRect(left, top, right - left, bottom - top);
     }
 }
-
-
-//window.onload = function() {
-//  // Video
-//    var video = document.getElementById("videoPlayer");
-//    video.controls = false;
-//    $('.progress-player').slider({
-//        value: 0,
-//        orientation: "horizontal",
-//        range: "min",
-//        animate: true,
-//        slide: function(event, ui) {
-//            // Calculate the new time
-//            var time = video.duration * (ui.value / 100);
-//
-//            // Update the video time
-//            video.currentTime = time;
-//	    }
-//    });
-//
-//  // Buttons
-//  var playButton = document.getElementById("play-pause");
-//  var muteButton = document.getElementById("mute");
-//  var fullScreenButton = document.getElementById("full-screen");
-//
-//  // Sliders
-//  var volumeBar = document.getElementById("volume-bar");
-//
-//  playButton.addEventListener("click", function() {
-//  if (video.paused == true) {
-//    // Play the video
-//    video.play();
-//
-//    // Update the button text to 'Pause'
-//    playButton.innerHTML = "Pause";
-//  } else {
-//    // Pause the video
-//    video.pause();
-//
-//    // Update the button text to 'Play'
-//    playButton.innerHTML = "Play";
-//  }
-//});
-//
-//    // Event listener for the mute button
-//    muteButton.addEventListener("click", function() {
-//      if (video.muted == false) {
-//        // Mute the video
-//        video.muted = true;
-//
-//        // Update the button text
-//        muteButton.innerHTML = "Unmute";
-//      } else {
-//        // Unmute the video
-//        video.muted = false;
-//
-//        // Update the button text
-//        muteButton.innerHTML = "Mute";
-//      }
-//    });
-//
-//    // Event listener for the full-screen button
-//fullScreenButton.addEventListener("click", function() {
-//    var video_container = document.getElementById("videoContainer");
-//  var isFullscreenNow = document.webkitFullscreenElement !== null
-//    if(  document.fullscreenElement || /* Standard syntax */
-//      document.webkitFullscreenElement || /* Chrome, Safari and Opera syntax */
-//      document.mozFullScreenElement ||/* Firefox syntax */
-//      document.msFullscreenElement) {
-//          closeFullscreen(video_container)
-//
-//          $("#videoPlayer").css("width", "initial")
-//          $("#videoPlayer").css("height", "initial")
-//    } else {
-//        openFullscreen(video_container)
-//          $("#videoPlayer").css("width", "100%")
-//          $("#videoPlayer").css("height", "100%")
-//    }
-//});
-//
-//    // Update the seek bar as the video plays
-//    video.addEventListener("timeupdate", function() {
-//      // Calculate the slider value
-//      var value = (100 / video.duration) * video.currentTime;
-//
-//      // Update the slider value
-//      $(".progress-player").slider('value', value);
-//    });
-//
-//    // Event listener for the volume bar
-//    volumeBar.addEventListener("input", function() {
-//      // Update the video volume
-//      video.volume = volumeBar.value;
-//    });
-//
-//
-//}
-
-function onFullScreen(e) {
-  var isFullscreenNow = document.fullscreenElement !== null
-  if(isFullscreenNow == false) {
-    $("#videoPlayer").css("width", "initial")
-          $("#videoPlayer").css("height", "initial")
-  }
-  update_canvas()
-}
-
-//document.getElementById("videoContainer").addEventListener('fullscreenchange', onFullScreen)
 
 /* View in fullscreen */
 function openFullscreen(elem) {
@@ -269,7 +184,7 @@ $(document).ready(function(){
 	//stop button clicked
 	$('.btnStop').on('click', function() {
 		$('.btnPlay').removeClass('paused');
-		updatebar($('.progress').offset().left);
+		updatebar($('.progress-player').offset().left);
 		video[0].pause();
 	});
 
@@ -278,16 +193,29 @@ $(document).ready(function(){
 	    var isFullscreenNow = $(document)[0].webkitFullscreenElement !== null
 		if(isFullscreenNow) {
 		    closeFullscreen($(document)[0], $('.videoContainer')[0])
+            $("#videoPlayer").css({"maxHeight": "400px"})
             $("#videoPlayer").css("width", "")
             $("#videoPlayer").css("height", "")
 		} else {
 		    openFullscreen($('.videoContainer')[0])
+		    $("#videoPlayer").css({"maxHeight": "initial"})
 		    $("#videoPlayer").css("width", "100%")
 		    $("#videoPlayer").css("height", "100%")
 
 		}
 
 	});
+
+	function onFullScreen(e) {
+        var isFullscreenNow = document.fullscreenElement !== null
+        if(isFullscreenNow == false) {
+            $("#videoPlayer").css("width", "")
+            $("#videoPlayer").css("height", "")
+        }
+        update_canvas()
+    }
+
+    $("#videoContainer")[0].addEventListener('fullscreenchange', onFullScreen)
 
 	//light bulb button clicked
 	$('.btnLight').click(function() {
@@ -366,7 +294,7 @@ $(document).ready(function(){
 	//VIDEO PROGRESS BAR
 	//when video timebar clicked
 	var timeDrag = false;	/* check for drag event */
-	$('.progress').on('mousedown', function(e) {
+	$('.progress-player').on('mousedown', function(e) {
 		timeDrag = true;
 		updatebar(e.pageX);
 	});
@@ -382,7 +310,7 @@ $(document).ready(function(){
 		}
 	});
 	var updatebar = function(x) {
-		var progress = $('.progress');
+		var progress = $('.progress-player');
 
 		//calculate drag position
 		//and update video currenttime
@@ -454,7 +382,6 @@ $(document).ready(function(){
 		else{
 			$('.sound').removeClass('muted').removeClass('sound2');
 		}
-
 	};
 
 	//Time format converter - 00:00

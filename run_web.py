@@ -9,6 +9,8 @@ from tornado.web import StaticFileHandler
 import os
 import asyncio
 from tornado.platform.asyncio import AnyThreadEventLoopPolicy
+import tornado.options
+tornado.options.parse_command_line()
 
 factory = make_session_factory("mysql://ccextractor:redwood32@localhost:3306/rekognition?charset=utf8mb4", pool_size = 1)
 

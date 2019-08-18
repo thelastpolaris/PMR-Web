@@ -69,7 +69,7 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 						 simframes,
 						 face_detector,
 						 face_recognizer,
-						 output_hand
+						 # output_hand
 						 ])
 
 	print(pipeline)

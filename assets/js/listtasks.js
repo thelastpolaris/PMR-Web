@@ -87,7 +87,6 @@ function tasksFinishLoading(num_all_tasks, current_page, tasks_per_page) {
         var secondPage = $('#secondPage > button')
         var thirdPage = $('#thirdPage > button')
 
-        console.log(num_all_tasks, tasks_per_page, max_page, current_page)
         var buttons = [$('#firstPage'), $('#secondPage'), $('#thirdPage')]
 
         if (max_page <= 2) {
