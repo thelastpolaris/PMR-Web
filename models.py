@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, Column, String, SmallInteger, JSON
+from sqlalchemy import BigInteger, Column, String, SmallInteger
 from tornado_sqlalchemy import declarative_base
 from secrets import token_hex
 
@@ -53,7 +53,6 @@ class Task(DeclarativeBase):
     user_id = Column(BigInteger, unique=False)
     file_id = Column(BigInteger, unique=False)
     image = Column(String(255))
-    json_data = Column(JSON, unique=False)
     status = Column(SmallInteger, unique=False)
     completion = Column(SmallInteger, unique=False)
     current_stage = Column(String(255))
@@ -62,7 +61,6 @@ class Task(DeclarativeBase):
         self.user_id = user_id
         self.file_id = file_id
         self.image = None
-        self.json_data = None
         self.status = 0
         self.completion = 0
         self.current_stage = None
@@ -72,8 +70,8 @@ class TaskDescription(DeclarativeBase):
 
     id = Column(BigInteger, primary_key=True)
     task_id = Column(BigInteger, unique=False)
-    persons = Column(JSON, unique=False)
-    persons_pics = Column(JSON, unique=False)
+    persons = Column(String, unique=False)
+    persons_pics = Column(String, unique=False)
 
     def __init__(self, task_id, persons, persons_pics):
         self.task_id = task_id

@@ -12,7 +12,12 @@ from tornado.platform.asyncio import AnyThreadEventLoopPolicy
 import tornado.options
 tornado.options.parse_command_line()
 
+import pymongo
+import motor
+
 factory = make_session_factory("mysql://ccextractor:redwood32@localhost:3306/rekognition?charset=utf8mb4", pool_size = 1)
+mongo_db = motor.motor_tornado.MotorClient().pmr
+
 
 absFilePath = os.path.abspath(__file__)
 fileDir = os.path.dirname(os.path.abspath(__file__))
@@ -57,7 +62,8 @@ def make_app():
 			'redirect_uri': 'http://fe76da5c.ngrok.io/login_github',
 			'scope': ['openid', 'email', 'profile']
 		},
-		'login_url': "/login"
+		'login_url': "/login",
+		'mongo_db': mongo_db
 	}
 	asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())
 	app = tornado.web.Application(urls, **settings)

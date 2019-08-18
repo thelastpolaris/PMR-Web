@@ -80,7 +80,7 @@
               <!-- Start Video Player -->
               <div id="videoContainer" class="videoContainer">
 
-	<video id="videoPlayer" controls preload="auto" ontimeupdate='set_json_data({{ json_data }})' poster="{{ image_URL }}" >
+	<video id="videoPlayer" controls preload="auto" ontimeupdate='set_json_data("s")' poster="{{ image_URL }}" >
 	  <source src="{{ video_URL }}" type="video/mp4" />
 	  <p>Your browser does not support the video tag.</p>
 	</video>
@@ -123,8 +123,8 @@
             <div class="card-header bg-transparent">
               <div class="row align-items-center">
                 <div class="col">
-                  <h6 class="text-uppercase text-muted ls-1 mb-1">Performance</h6>
-                  <h2 class="mb-0">Total orders</h2>
+                  <h6 class="text-uppercase text-muted ls-1 mb-1">Person Details</h6>
+                  <h2 id="person-info" class="mb-0">s</h2>
                 </div>
               </div>
             </div>

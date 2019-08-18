@@ -6,10 +6,29 @@ function update_canvas() {
     var height = $("#videoPlayer").outerHeight()
     var width = height*aspect_ratio
 
-    c1.css("width", width)
-    c1.css("height", height)
-    c1.css("left", ($("#videoPlayer").outerWidth() - width )/2)
-    console.log("s", $("#videoPlayer").outerWidth())
+    c1.attr("width", Math.floor(width))
+    c1.attr("height", Math.floor(height))
+    c1.css("left", Math.floor(($("#videoPlayer").outerWidth() - width )/2))
+
+//    //get DPI
+//    let dpi = window.devicePixelRatio;
+//    //get canvas
+//    let canvas = c1[0];
+//    //get context
+//    let ctx = canvas.getContext('2d');
+//    ctx.imageSmoothingEnabled = false;
+//
+//    function fix_dpi() {
+//    //get CSS height
+//    //the + prefix casts it to an integer
+//    //the slice method gets rid of "px"
+//    let style_height = +getComputedStyle(canvas).getPropertyValue("height").slice(0, -2);
+//    //get CSS width
+//    let style_width = +getComputedStyle(canvas).getPropertyValue("width").slice(0, -2);
+//    //scale the canvas
+//    canvas.setAttribute('height', style_height * dpi);
+//    canvas.setAttribute('width', style_width * dpi);
+//    }
 }
 
 $("#videoPlayer")[0].onloadedmetadata = function () {
@@ -32,36 +51,60 @@ setInterval(function () {
     video_player(json_data); // will get you a lot more updates.
 }, 30);
 
-function video_player(json_frames) {
+var canvas_mouse = null
+var canvas = document.getElementById("videoCanvas");
+
+$("#videoPlayer")[0].addEventListener("mousemove", function(e) {
+    // Get the current mouse position
+    var r = canvas.getBoundingClientRect(),
+        x = e.clientX - r.left, y = e.clientY - r.top;
+    canvas_mouse = {"x":x, "y":y}
+});
+
+function video_player(json_frames, hover = null) {
     frame_data = null
     currentTime = $("#videoPlayer")[0].currentTime
-    for( var i=0; i< json_frames.length; i++ ) {
-        if (currentTime < json_frames[i]["second"]) {
-            if(i == 0) return
+    if (json_frames) {
+        for( var i=0; i< json_frames.length; i++ ) {
+            if (currentTime < json_frames[i]["second"]) {
+                if(i == 0) return
 
-            frame_data = json_frames[i]["data"]
-            break
+                frame_data = json_frames[i]["data"]
+                break
+            }
         }
     }
     if(frame_data == null) return
 
-    var c1 = document.getElementById("videoCanvas");
-    var c1_context = c1.getContext("2d");
+    var c1_context = canvas.getContext("2d");
     c1_context.fillStyle = "#f00";
-    c1_context.clearRect(0, 0, c1.width, c1.height);
-    c1_context.strokeStyle = "red";
+    c1_context.clearRect(0, 0, canvas.width, canvas.height);
+    c1_context.strokeStyle = "#ff0000";
+    c1_context.font = "1.5em Arial";
     var width = $("#videoPlayer")[0].width
     var height = $("#videoPlayer")[0].height
-    var woffset = c1.width - $("#videoPlayer")[0].videoWidth
+    var woffset = canvas.width - $("#videoPlayer")[0].videoWidth
 
     for( var i=0; i< frame_data.length; i++ ) {
         var box = frame_data[i]["bounding_box"]
-        var bottom = box["bottom"]*c1.height
-        var top = box["top"]*c1.height
-        var left = box["left"]*c1.width
-        var right = box["right"]*c1.width
+        var bottom = box["bottom"]*canvas.height
+        var top = Math.floor(box["top"]*canvas.height)
+        var left = Math.floor(box["left"]*canvas.width)
+        var right = box["right"]*canvas.width
+
+        if(canvas_mouse != null) {
+            var x = canvas_mouse["x"]
+            var y = canvas_mouse["y"]
+
+            if(x >= left && x <= right && y >= top && y <= bottom) {
+                c1_context.lineWidth = 6
+            } else {
+                c1_context.lineWidth = 2
+            }
+        }
 
         c1_context.strokeRect(left, top, right - left, bottom - top);
+        c1_context.fillText(frame_data[i]["name"][0], left, top - 5);
     }
 }
 

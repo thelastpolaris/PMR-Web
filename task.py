@@ -7,14 +7,16 @@ from settings import __UPLOADS__
 
 from pipelines import createPipeline
 from models import Task, File
+from basehandler import BaseHandler
 
 class TaskManager():
 	__current_task_id = None
 	__current_session = None
 
-	def __init__(self):
+	def __init__(self, mongo_db):
 		self.__current_task_id = None
 		self.__last_session = None
+		self._mongo_db = mongo_db
 
 	def update_task(self, current_elem, completion):
 		task = self.__current_session.query(Task).filter(Task.id == self.__current_task_id).first()
@@ -43,9 +45,10 @@ class TaskManager():
 	def add_task_description(self, task, path_to_video):
 		# task_description = TaskDescription(task_id=task.id)
 
-		if task.json_data:
-			persons = []
-			persons_pics = []
+		# if task.json_data:
+		# 	persons = []
+		# 	persons_pics = []
+		pass
 
 	async def add_task(self, user_id, file_id, session):
 		self.__last_session = session
@@ -87,7 +90,12 @@ class TaskManager():
 		)
 		if JSON_data:
 			task.status = 2
-			task.json_data = JSON_data
+
+			document = {"frames": JSON_data }
+			result = self._mongo_db.task_json.insert_one(document)
+			print(result.inserted_id)
+
+
 
 			self.add_task_description(task, file.filename)
 		else:

@@ -42,7 +42,8 @@ class DashboardHandler(BaseHandler):
 			mode = self.get_argument("mode", None)
 
 			if mode == "list":
-				tasks = await as_future(session.query(Task).filter(Task.user_id == user_id).all)
+				query_cols = (Task.id, Task.image, Task.status, Task.current_stage, Task.completion, Task.file_id)
+				tasks = await as_future(session.query(*query_cols).filter(Task.user_id == user_id).all)
 				tasks.reverse() # make new tasks appear earlier
 				num_all_tasks = len(tasks)
 				json_tasks = []
@@ -135,9 +136,10 @@ class TaskHandler(BaseHandler):
 
 		with self.make_session() as session:
 			mode = self.get_argument("mode", None)
+			task_manager = TaskManager(self.settings["mongo_db"])
 
 			if mode == "add_task":
-				task_id = await TaskManager().add_task(user_id, file_id, session)
+				task_id = await task_manager.add_task(user_id, file_id, session)
 				self.set_status(200)
 
 				task = await as_future(session.query(Task).filter(Task.id == task_id).first)
@@ -151,7 +153,7 @@ class TaskHandler(BaseHandler):
 				}
 
 				self.finish(json_task)
-				await TaskManager().run_task(task_id, session)
+				await TaskManager(self.settings["mongo_db"]).run_task(task_id, session)
 			elif mode == "rerun_task":
 				task_id = self.get_argument("taskID", None)
 				if task_id is not None:
@@ -161,7 +163,7 @@ class TaskHandler(BaseHandler):
 							self.set_status(200)
 							self.finish()
 
-							await TaskManager().run_task(task_id, session)
+							await task_manager.run_task(task_id, session)
 
 
 class TaskPageHandler(BaseHandler):
@@ -180,14 +182,16 @@ class TaskPageHandler(BaseHandler):
 			task = await as_future(session.query(Task).filter(Task.id == task_id).first)
 			file = await as_future(session.query(File).filter(File.id == task.file_id).first)
 
-			time_base = task.json_data[-1]["time_base"]
+			# time_base = task.json_data[-1]["time_base"]
+
 			json_frames = []
 
-			for i in range(len(task.json_data) - 1):
-				frame_json = task.json_data[i]
-				# if last_second < int(frame_json["pts"]/time_base):
-				# 	last_second += 1
-				json_frames.append({"second": frame_json["pts"]/time_base, "data": frame_json["faces"]})
+			# for i in range(len(task.json_data) - 1):
+			# 	frame_json = task.json_data[i]
+			# 	# if last_second < int(frame_json["pts"]/time_base):
+			# 	# 	last_second += 1
+			#
+			# 	json_frames.append({"second": frame_json["pts"]/time_base, "data": frame_json["faces"]})
 
 			args = {
 				"title": "Poor's Man Rekognition - Task Description",
@@ -197,9 +201,9 @@ class TaskPageHandler(BaseHandler):
 				"processing_globally": processing_globally,
 				"video_URL": self.static_url(os.path.join(__UPLOADS__.replace("assets/", ""), file.filename)),
 				"image_URL": self.static_url(task.image),
-				"json_data": json_frames,
 				"type": "Video" if file.type == 0 or file.type == 2 else "Image",
 				"name": file.filename
 			}
 
-			self.render("task.html", **args)
+			await self.render("task.html", **args)
+
