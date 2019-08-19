@@ -91,11 +91,9 @@ class TaskManager():
 		if JSON_data:
 			task.status = 2
 
-			document = {"frames": JSON_data }
-			result = self._mongo_db.task_json.insert_one(document)
-			print(result.inserted_id)
-
-
+			document = {"frames": JSON_data}
+			result = await self._mongo_db.task_json.insert_one(document)
+			task.json_obj_id= result.inserted_id
 
 			self.add_task_description(task, file.filename)
 		else:

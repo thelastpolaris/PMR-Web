@@ -2,7 +2,9 @@ from tornado_sqlalchemy import as_future
 from basehandler import BaseHandler
 import tornado.web
 from settings import __UPLOADS__
-import os, json
+import os
+
+from bson.objectid import ObjectId
 
 from task import TaskManager
 from models import User, Task, File
@@ -182,16 +184,18 @@ class TaskPageHandler(BaseHandler):
 			task = await as_future(session.query(Task).filter(Task.id == task_id).first)
 			file = await as_future(session.query(File).filter(File.id == task.file_id).first)
 
-			# time_base = task.json_data[-1]["time_base"]
+			json_data = await self.settings["mongo_db"].task_json.find_one({"_id": ObjectId(task.json_obj_id)})
+			json_data = json_data["frames"]
 
+			time_base = json_data[-1]["time_base"]
 			json_frames = []
 
-			# for i in range(len(task.json_data) - 1):
-			# 	frame_json = task.json_data[i]
-			# 	# if last_second < int(frame_json["pts"]/time_base):
-			# 	# 	last_second += 1
-			#
-			# 	json_frames.append({"second": frame_json["pts"]/time_base, "data": frame_json["faces"]})
+			for i in range(len(json_data) - 1):
+				frame_json = json_data[i]
+				# if last_second < int(frame_json["pts"]/time_base):
+				# 	last_second += 1
+
+				json_frames.append({"second": frame_json["pts"]/time_base, "data": frame_json["faces"]})
 
 			args = {
 				"title": "Poor's Man Rekognition - Task Description",
@@ -202,8 +206,9 @@ class TaskPageHandler(BaseHandler):
 				"video_URL": self.static_url(os.path.join(__UPLOADS__.replace("assets/", ""), file.filename)),
 				"image_URL": self.static_url(task.image),
 				"type": "Video" if file.type == 0 or file.type == 2 else "Image",
-				"name": file.filename
+				"name": file.filename,
+				"json_data": json_frames
 			}
 
-			await self.render("task.html", **args)
+			self.render("task.html", **args)
 

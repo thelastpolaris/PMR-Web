@@ -80,7 +80,7 @@
               <!-- Start Video Player -->
               <div id="videoContainer" class="videoContainer">
 
-	<video id="videoPlayer" controls preload="auto" ontimeupdate='set_json_data("s")' poster="{{ image_URL }}" >
+	<video id="videoPlayer" controls preload="auto" ontimeupdate='set_json_data({{ json_data }})' poster="{{ image_URL }}" >
 	  <source src="{{ video_URL }}" type="video/mp4" />
 	  <p>Your browser does not support the video tag.</p>
 	</video>

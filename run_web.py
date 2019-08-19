@@ -65,7 +65,6 @@ def make_app():
 		'login_url': "/login",
 		'mongo_db': mongo_db
 	}
-	asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())
 	app = tornado.web.Application(urls, **settings)
 
 	return app
@@ -73,4 +72,5 @@ def make_app():
 if __name__ == "__main__":
 	app = make_app()
 	app.listen(8888)
+
 	tornado.ioloop.IOLoop.current().start()

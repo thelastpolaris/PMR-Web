@@ -53,6 +53,7 @@ class Task(DeclarativeBase):
     user_id = Column(BigInteger, unique=False)
     file_id = Column(BigInteger, unique=False)
     image = Column(String(255))
+    json_obj_id = Column(String(1024))
     status = Column(SmallInteger, unique=False)
     completion = Column(SmallInteger, unique=False)
     current_stage = Column(String(255))
@@ -61,6 +62,7 @@ class Task(DeclarativeBase):
         self.user_id = user_id
         self.file_id = file_id
         self.image = None
+        self.json_obj_id = None
         self.status = 0
         self.completion = 0
         self.current_stage = None
