@@ -7,7 +7,6 @@ from settings import __UPLOADS__
 
 from pipelines import createPipeline
 from models import Task, File
-from basehandler import BaseHandler
 
 class TaskManager():
 	__current_task_id = None
@@ -88,12 +87,14 @@ class TaskManager():
 			None,
 			createPipeline, os.path.join(__UPLOADS__, file.filename), self.update_task, True, True,
 		)
+
 		if JSON_data:
 			task.status = 2
 
-			document = {"frames": JSON_data}
+			document = JSON_data
+
 			result = await self._mongo_db.task_json.insert_one(document)
-			task.json_obj_id= result.inserted_id
+			task.json_obj_id = result.inserted_id
 
 			self.add_task_description(task, file.filename)
 		else:

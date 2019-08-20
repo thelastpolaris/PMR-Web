@@ -120,7 +120,6 @@ function deleteTask(task_id) {
     formdata.append("_xsrf", getCookie("_xsrf"))
     formdata.append("mode", "delete")
     formdata.append("task_id", task_id)
-    console.log(task_id)
 
     $.ajax({
       url: '/',

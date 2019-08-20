@@ -42,9 +42,45 @@ window.onresize = function () {
 var button = document.getElementById('toggle')
 
 var json_data = null
+var json_start = 0
+var json_num = 15
+var json_load_lock = false
 
-function set_json_data(_json_data) {
-    if (json_data == null) json_data = _json_data
+function set_json_data(_json_data, _json_start) {
+    json_data = _json_data
+    json_start = _json_start
+}
+
+function load_json() {
+    currentTime = $("#videoPlayer")[0].currentTime
+
+    if(!json_load_lock) {
+        if(json_data == null || currentTime < json_start || currentTime > json_start + json_num) {
+            json_load_lock = true
+            var formdata = new FormData();
+            formdata.append("_xsrf", getCookie("_xsrf"))
+            formdata.append("mode", "get_json")
+            formdata.append("start", Math.floor(currentTime))
+            formdata.append("num", json_num)
+
+            var url = new URL(window.location.href);
+            var task_id = url.searchParams.get("id");
+            formdata.append("task_id", task_id)
+
+            $.ajax({
+              url: '/task',
+              data: formdata,
+              processData: false,
+              contentType: false,
+              type: 'POST',
+              success: function(data) {
+                    console.log(data["frames"])
+                    set_json_data(data["frames"], Math.floor(currentTime))
+                    json_load_lock = false
+              }
+            });
+        }
+    }
 }
 
 setInterval(function () {
@@ -60,6 +96,33 @@ $("#videoPlayer")[0].addEventListener("mousemove", function(e) {
         x = e.clientX - r.left, y = e.clientY - r.top;
     canvas_mouse = {"x":x, "y":y}
 });
+
+function descRow(char_name, char_val){
+   return `<tr>
+                <td>
+                    <b>${char_name}":"</b>
+                </td>
+                <td>
+                    ${char_val}
+                </td>
+            </tr>`;
+}
+
+function show_person_description(name, extra_data) {
+    if (name != null) {
+        $("#person-info").html(name)
+        $("#person-desc-body").css("filter", " blur(0px)")
+
+//        for( var i=0; i < extra_data.length; i++ ) {
+//            $("#taskLists").append(descRow()
+//        }
+        console.log(extra_data)
+
+    } else {
+        $("#person-info").html("Hover over face")
+        $("#person-desc-body").css("filter", " blur(10px)")
+    }
+}
 
 function video_player(json_frames, hover = null) {
     frame_data = null
@@ -98,8 +161,10 @@ function video_player(json_frames, hover = null) {
 
             if(x >= left && x <= right && y >= top && y <= bottom) {
                 c1_context.lineWidth = 6
+                show_person_description(frame_data[i]["name"][0])
             } else {
                 c1_context.lineWidth = 2
+                show_person_description(null)
             }
         }
 
@@ -137,6 +202,7 @@ function closeFullscreen(document, elem) {
 $(document).ready(function(){
 	//INITIALIZE
 	var video = $('#videoPlayer');
+	load_json()
 	update_canvas()
 
 	//remove default control when JS loaded
@@ -197,6 +263,7 @@ $(document).ready(function(){
 		var perc = 100 * currentPos / maxduration;
 		$('.timeBar').css('width',perc+'%');
 		$('.current').text(timeFormat(currentPos));
+        load_json()
 	});
 
 	//CONTROLS EVENTS

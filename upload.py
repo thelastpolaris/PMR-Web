@@ -9,6 +9,7 @@ from models import File
 import datetime
 from pytube import YouTube
 import zipfile
+import asyncio
 
 class FileHandler(BaseHandler):
 	@tornado.web.authenticated
@@ -80,6 +81,10 @@ class YouTubeHandler(tornado.websocket.WebSocketHandler, SessionMixin):
 			progress = str(int((1 - bytes_remaining / stream.filesize) * 100))
 			self.write_message({"progress": progress})
 
+		def download_video(video):
+			asyncio.set_event_loop(asyncio.new_event_loop())
+			video.download(__UPLOADS__)
+
 		yt_url = str(message)
 
 		yt = YouTube(yt_url, on_progress_callback=progress_function)
@@ -94,11 +99,11 @@ class YouTubeHandler(tornado.websocket.WebSocketHandler, SessionMixin):
 		if video:
 			await tornado.ioloop.IOLoop.current().run_in_executor(
 				None,
-				video.download, __UPLOADS__,
+				download_video, video,
 			)
 			await self.write_message("finish")
 
-			filename = os.path.join(__UPLOADS__, video.default_filename)
+			filename = video.default_filename
 			user_id = int(self.get_secure_cookie("user_id"))
 
 			with self.make_session() as session:

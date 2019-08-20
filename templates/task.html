@@ -80,7 +80,7 @@
               <!-- Start Video Player -->
               <div id="videoContainer" class="videoContainer">
 
-	<video id="videoPlayer" controls preload="auto" ontimeupdate='set_json_data({{ json_data }})' poster="{{ image_URL }}" >
+	<video id="videoPlayer" controls preload="auto" poster="{{ image_URL }}" >
 	  <source src="{{ video_URL }}" type="video/mp4" />
 	  <p>Your browser does not support the video tag.</p>
 	</video>
@@ -119,7 +119,7 @@
           </div>
         </div>
         <div class="col-xl-4">
-          <div class="card shadow">
+          <div id="person-description-card" class="card shadow">
             <div class="card-header bg-transparent">
               <div class="row align-items-center">
                 <div class="col">
@@ -128,11 +128,26 @@
                 </div>
               </div>
             </div>
-            <div class="card-body">
-              <!-- Chart -->
-              <div class="chart"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
-                <canvas id="chart-orders" class="chart-canvas chartjs-render-monitor" width="334" height="350" style="display: block; width: 334px; height: 350px;"></canvas>
-              </div>
+            <div id="person-desc-body" class="card-body">
+              <div class="table-responsive">
+    <div>
+    <table class="table align-items-center">
+        <tbody id="person-desc-list" class="list">
+            <tr>
+                <td>
+                    $2500 USD
+                </td>
+                <td class="status">
+                    <span class="badge badge-dot mr-4">
+                      <i class="bg-warning"></i> pending
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</div>
             </div>
           </div>
         </div>

@@ -184,18 +184,11 @@ class TaskPageHandler(BaseHandler):
 			task = await as_future(session.query(Task).filter(Task.id == task_id).first)
 			file = await as_future(session.query(File).filter(File.id == task.file_id).first)
 
-			json_data = await self.settings["mongo_db"].task_json.find_one({"_id": ObjectId(task.json_obj_id)})
-			json_data = json_data["frames"]
-
-			time_base = json_data[-1]["time_base"]
-			json_frames = []
-
-			for i in range(len(json_data) - 1):
-				frame_json = json_data[i]
-				# if last_second < int(frame_json["pts"]/time_base):
-				# 	last_second += 1
-
-				json_frames.append({"second": frame_json["pts"]/time_base, "data": frame_json["faces"]})
+			if task.user_id != int(user_id):
+				self.set_status(403)
+				self.write("Access Forbidden")
+				self.finish()
+				return
 
 			args = {
 				"title": "Poor's Man Rekognition - Task Description",
@@ -206,9 +199,59 @@ class TaskPageHandler(BaseHandler):
 				"video_URL": self.static_url(os.path.join(__UPLOADS__.replace("assets/", ""), file.filename)),
 				"image_URL": self.static_url(task.image),
 				"type": "Video" if file.type == 0 or file.type == 2 else "Image",
-				"name": file.filename,
-				"json_data": json_frames
+				"name": file.filename
 			}
 
 			self.render("task.html", **args)
 
+	@tornado.web.authenticated
+	async def post(self):
+		user_id = int(self.get_secure_cookie("user_id"))
+		task_id = int(self.get_argument('task_id', default=None, strip=False))
+
+		with self.make_session() as session:
+			mode = self.get_argument("mode", None)
+
+			if mode == "get_json":
+				task = await as_future(session.query(Task).filter(Task.id == task_id).first)
+
+				if task.user_id != user_id:
+					self.set_status(403)
+					self.write("Access Forbidden")
+
+				start = int(self.get_argument("start", None))
+				num = int(self.get_argument("num", None))
+
+				async def slice_json(_start, _num):
+					pipelines = [{"$project": {"time_base": 1, "fps": 1, "frames": {"$slice": ["$frames", _start, _num]}}},
+							 	{"$match": {"_id": ObjectId(task.json_obj_id)}}]
+
+					async for doc in self.settings["mongo_db"].task_json.aggregate(pipelines):
+						return doc
+
+				json_data = await slice_json(0, 2)
+
+				pts_diff = json_data["frames"][1]["pts"] - json_data["frames"][0]["pts"]
+				time_base = json_data["time_base"]
+				fps = json_data["fps"]
+
+				start = int(start*fps)
+				num = int(num*fps)
+				print(start, num, fps)
+
+				json_data = await slice_json(start, num)
+
+				json_frames = []
+
+				if json_data:
+					# print(json_data)
+					# json_data = json_data["frames"]
+
+					for i in range(len(json_data["frames"]) - 1):
+						frame_json = json_data["frames"][i]
+						# if last_second < int(frame_json["pts"]/time_base):
+						# 	last_second += 1
+
+						json_frames.append({"second": frame_json["pts"] / time_base, "data": frame_json["faces"]})
+
+				self.write({"frames": json_frames})
