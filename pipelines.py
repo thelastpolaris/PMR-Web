@@ -95,7 +95,7 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 		# 		  face_recognizer: {"backend":"SciKit", "n_ngbr": 10},
 		# 		  pipeline: {"out_name": "output/" + out_name}}, True, progress_callback)
 
-		JSON_data = pipeline.run({datahandler: {"input_path" : input_path, "max_frames":500, "preprocessors": [resizer]},
+		JSON_data = pipeline.run({datahandler: {"input_path" : input_path, "preprocessors": [resizer]},
 				  simframes: {"sim_threshold": 0.99, "max_jobs": 10},
 				  face_detector: {"min_score": 0.6},
 				  face_recognizer: {"backend":"SciKit", "n_ngbr": 10},

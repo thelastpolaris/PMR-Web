@@ -172,7 +172,8 @@ class TaskPageHandler(BaseHandler):
 	@tornado.web.authenticated
 	async def get(self):
 		user_id = self.get_secure_cookie("user_id")
-		task_id = self.get_argument('id', None)
+		task_id = self.get_argument('id',
+									)
 
 		with self.make_session() as session:
 			user = await as_future(session.query(User).filter(User.id == user_id).first)
@@ -199,7 +200,8 @@ class TaskPageHandler(BaseHandler):
 				"video_URL": self.static_url(os.path.join(__UPLOADS__.replace("assets/", ""), file.filename)),
 				"image_URL": self.static_url(task.image),
 				"type": "Video" if file.type == 0 or file.type == 2 else "Image",
-				"name": file.filename
+				"name": file.filename,
+				"status": task.status
 			}
 
 			self.render("task.html", **args)

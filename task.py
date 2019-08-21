@@ -7,6 +7,7 @@ from settings import __UPLOADS__
 
 from pipelines import createPipeline
 from models import Task, File
+from bson.objectid import ObjectId
 
 class TaskManager():
 	__current_task_id = None
@@ -73,12 +74,27 @@ class TaskManager():
 
 		return task.id
 
+	async def clear_task(self, task_id, session):
+		task = await as_future(session.query(Task).filter(Task.id == task_id).first)
+
+		if task:
+			task.status = 1
+			if task.json_obj_id:
+				await self._mongo_db.task_json.delete_one({"_id": ObjectId(task.json_obj_id)})
+				task.json_obj_id = None
+
+			task.completion = 0
+			task.current_stage = ""
+
+			session.add(task)
+			session.commit()
+
+
 	async def run_task(self, task_id, session):
 		task = await as_future(session.query(Task).filter(Task.id == task_id).first)
 		file = await as_future(session.query(File).filter(File.id == task.file_id).first)
 
-		task.status = 1
-		task.completion = 0
+		await self.clear_task(task_id, session)
 
 		self.__current_task_id = task.id
 		self.__current_session = session

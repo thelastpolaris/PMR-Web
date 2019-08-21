@@ -270,3 +270,7 @@ table.loading tbody:after {
 #person-desc-body {
     min-height: 300px
 }
+
+#person-description-card {
+    margin-bottom: 10px;
+}

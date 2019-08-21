@@ -118,7 +118,8 @@
             </div>
           </div>
         </div>
-        <div class="col-xl-4">
+          <div class="col-xl-4">
+
           <div id="person-description-card" class="card shadow">
             <div class="card-header bg-transparent">
               <div class="row align-items-center">
@@ -137,10 +138,49 @@
         </tbody>
     </table>
 </div>
-
 </div>
             </div>
           </div>
+              <div  class="card shadow">
+            <div class="card-header bg-transparent">
+              <div class="row align-items-center">
+                <div class="col">
+                  <h6 class="text-uppercase text-muted ls-1 mb-1">Task Details</h6>
+                  <h2 class="mb-0">{{ name }}</h2>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+                <table id="table-desc-list" class="table align-items-center">
+                <tbody id="person-desc-list" class="list">
+                <tr>
+                    <td>
+                        <b>Type:</b>
+                    </td>
+                    <td>
+                        {{ type }}
+                    </td>
+                </tr><tr>
+                    <td>
+                        <b>Status:</b>
+                    </td>
+                    <td>
+                        <span class="badge badge-dot mr-4">
+                        {% if status == 0 %}
+                            <i class="bg-info"></i> Queued
+                        {% elif status == 1 %}
+                            <i class="bg-success"></i> Processing
+                        {% elif status == 2 %}
+                            <i class="bg-success"></i> Finished
+                        {% elif status == 3 %}
+                            <i class="bg-warning"></i> Failed
+                        {% end %}
+                        </span>
+                    </td>
+                </tr></tbody>
+            </table>
+            </div>
+            </div>
         </div>
       </div>
       <script src={{ static_url("js/video_player.js") }}?v=1.0.0></script>
