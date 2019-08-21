@@ -26,6 +26,12 @@ from rekognition.pipeline.recognizers.face_recognizer import FaceRecognizerElem
 from rekognition.pipeline.recognizers.facenet_recognizer import FacenetRecognizer
 from rekognition.pipeline.recognizers.arcface_recognizer import ArcFaceRecognizer
 
+from rekognition.pipeline.face_age_gender.face_age_gender import FaceAgeGenderElem
+from rekognition.pipeline.face_age_gender.dex_age_gender import DEXAgeGenderKernel
+
+from rekognition.pipeline.face_expression.face_expression import FaceExpressionRecognizer
+from rekognition.pipeline.face_expression.cnn_pytorch import CNNPytorchKernel
+
 # Output
 from rekognition.pipeline.output_handlers.videooutput_handler import VideoOutputHandler
 from rekognition.pipeline.output_handlers.imageoutput_handler import ImageOutputHandler
@@ -65,10 +71,16 @@ def createPipeline(input_path, progress_callback = None, isImage = False, useYol
 	face_recognizer = FaceRecognizerElem(FacenetRecognizer(fileDir + "/../poors_man_rekognition/rekognition/model/facenet/classifiers/facenet_first_evals_scikit_aug.pkl"))
 	output_hand = VideoOutputHandler()
 
+	face_age_gender = FaceAgeGenderElem(DEXAgeGenderKernel())
+
+	face_expression = FaceExpressionRecognizer(CNNPytorchKernel())
+
 	pipeline = Pipeline([datahandler,
 						 simframes,
 						 face_detector,
 						 face_recognizer,
+						 face_age_gender,
+						 face_expression
 						 # output_hand
 						 ])
 

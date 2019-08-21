@@ -261,3 +261,12 @@ table.loading tbody:after {
 	background-color:#eee;
 	z-index:10;
 }
+
+#table-desc-list tr:first-child td:nth-child(1),
+#table-desc-list tr:first-child td:nth-child(2) {
+    border:1px transparent;
+}
+
+#person-desc-body {
+    min-height: 300px
+}

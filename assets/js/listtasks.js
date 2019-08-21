@@ -36,7 +36,7 @@ function taskRow(task_id, image_url, filename, status, current_stage, completion
                   <i class="fas fa-ellipsis-v"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                  ${status == 1 ? `<a class="dropdown-item" href="#">Pause</a>` : `<button class="dropdown-item" onclick=rerunTask(${task_id})>Rerun</button>`}
+                  ${status == 1 ? `` : `<button class="dropdown-item" onclick=rerunTask(${task_id})>Rerun</button>`}
                   <button class="dropdown-item" onclick=deleteTask(${task_id})>Delete</button>
                 </div>
               </div>

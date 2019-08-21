@@ -100,7 +100,7 @@ $("#videoPlayer")[0].addEventListener("mousemove", function(e) {
 function descRow(char_name, char_val){
    return `<tr>
                 <td>
-                    <b>${char_name}":"</b>
+                    <b>${char_name}:</b>
                 </td>
                 <td>
                     ${char_val}
@@ -112,14 +112,22 @@ function show_person_description(name, extra_data) {
     if (name != null) {
         $("#person-info").html(name)
         $("#person-desc-body").css("filter", " blur(0px)")
+        $("#person-desc-list").empty()
 
-//        for( var i=0; i < extra_data.length; i++ ) {
-//            $("#taskLists").append(descRow()
-//        }
-        console.log(extra_data)
+        $("#person-desc-list").append(descRow("Confidence", extra_data["name"][1].toFixed(2)))
+        if(extra_data.hasOwnProperty("gender")) {
+            var gender = extra_data["gender"] == "M" ? "Male" : "Female"
+            $("#person-desc-list").append(descRow("Gender", gender))
+        }
+        if(extra_data.hasOwnProperty("age")) {
+            $("#person-desc-list").append(descRow("Age", extra_data["age"]))
+        }
+        if(extra_data.hasOwnProperty("expression")) {
+            $("#person-desc-list").append(descRow("Expression", extra_data["expression"]))
+        }
 
     } else {
-        $("#person-info").html("Hover over face")
+        $("#person-info").html("Hover over a face")
         $("#person-desc-body").css("filter", " blur(10px)")
     }
 }
@@ -148,6 +156,8 @@ function video_player(json_frames, hover = null) {
     var height = $("#videoPlayer")[0].height
     var woffset = canvas.width - $("#videoPlayer")[0].videoWidth
 
+    var hover = false
+
     for( var i=0; i< frame_data.length; i++ ) {
         var box = frame_data[i]["bounding_box"]
         var bottom = box["bottom"]*canvas.height
@@ -161,16 +171,17 @@ function video_player(json_frames, hover = null) {
 
             if(x >= left && x <= right && y >= top && y <= bottom) {
                 c1_context.lineWidth = 6
-                show_person_description(frame_data[i]["name"][0])
+                show_person_description(frame_data[i]["name"][0], frame_data[i])
+                hover = true
             } else {
                 c1_context.lineWidth = 2
-                show_person_description(null)
             }
         }
 
         c1_context.strokeRect(left, top, right - left, bottom - top);
         c1_context.fillText(frame_data[i]["name"][0], left, top - 5);
     }
+    if(!hover) show_person_description(null)
 }
 
 /* View in fullscreen */
